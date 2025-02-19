@@ -1,10 +1,13 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
-import { AuthError } from "@supabase/supabase-js";
+import { ArrowLeft, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -53,7 +56,7 @@ const Login = () => {
         return;
       }
 
-      toast.success("Connexion réussie");
+      toast.success("Connexion réussie !");
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Erreur inattendue:", error);
@@ -64,65 +67,155 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-heading font-bold text-gray-900">
-            Connexion à votre compte
-          </h2>
-          {!isSupabaseConfigured() && (
-            <p className="mt-2 text-center text-sm text-red-600">
-              La connexion à Supabase n'est pas configurée. Veuillez configurer l'intégration Supabase.
-            </p>
-          )}
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          )}
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Adresse email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Adresse email"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mot de passe"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-              />
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Header avec bouton retour */}
+      <div className="p-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à l'accueil
+        </Button>
+      </div>
 
-          <div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !isSupabaseConfigured()}
-            >
-              {loading ? "Connexion..." : "Se connecter"}
-            </Button>
-          </div>
-        </form>
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full"
+        >
+          <Card className="p-8">
+            <CardContent className="p-0 space-y-8">
+              <div>
+                <h2 className="text-center text-3xl font-heading font-bold text-gray-900">
+                  Connexion
+                </h2>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                  Accédez à votre espace personnel d'orientation
+                </p>
+                {!isSupabaseConfigured() && (
+                  <div className="mt-4 p-4 bg-red-50 rounded-md">
+                    <p className="text-sm text-red-600 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      La connexion à Supabase n'est pas configurée. Veuillez configurer l'intégration Supabase.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <form className="space-y-6" onSubmit={handleLogin}>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-md bg-red-50 p-4"
+                  >
+                    <p className="text-sm text-red-700 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      {error}
+                    </p>
+                  </motion.div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      Adresse email
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <Input
+                        id="email"
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="vous@exemple.com"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        Mot de passe
+                      </label>
+                      <Link
+                        to="/forgot-password"
+                        className="text-sm font-medium text-primary hover:text-primary/80"
+                      >
+                        Mot de passe oublié ?
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                        <Lock className="w-5 h-5" />
+                      </div>
+                      <Input
+                        id="password"
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Votre mot de passe"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Button
+                    type="submit"
+                    className="w-full relative"
+                    disabled={loading || !isSupabaseConfigured()}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Connexion en cours...
+                      </>
+                    ) : (
+                      "Se connecter"
+                    )}
+                  </Button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-gray-500">Ou</span>
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-gray-600">
+                      Pas encore de compte ?{" "}
+                      <Link to="/register" className="font-medium text-primary hover:text-primary/80">
+                        Inscrivez-vous gratuitement
+                      </Link>
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      En vous connectant, vous acceptez nos{" "}
+                      <a href="#" className="underline hover:text-gray-700">
+                        conditions d'utilisation
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,17 +11,11 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarPlus, Clock } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
 
-interface Appointment {
-  id: string;
-  conseiller_id: string;
-  student_id: string;
-  date: string;
-  time: string;
-  notes: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  created_at: string;
-  student_email?: string;
+type AppointmentRow = Database["public"]["Tables"]["appointments"]["Row"];
+
+interface Appointment extends Omit<AppointmentRow, "profiles"> {
   profiles?: {
     email: string;
   };
@@ -50,18 +43,23 @@ export const AppointmentManagement = () => {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('appointments')
+        .from("appointments")
         .select(`
           *,
-          profiles!appointments_student_id_fkey(email)
+          profiles:student_id(email)
         `)
-        .eq('conseiller_id', user.id);
+        .eq("conseiller_id", user.id);
 
       if (error) throw error;
 
-      setAppointments(data || []);
+      const formattedAppointments = data?.map(apt => ({
+        ...apt,
+        student_email: apt.profiles?.email
+      })) || [];
+
+      setAppointments(formattedAppointments);
     } catch (error) {
-      console.error('Erreur lors de la récupération des rendez-vous:', error);
+      console.error("Erreur lors de la récupération des rendez-vous:", error);
       toast.error("Erreur lors du chargement des rendez-vous");
     }
   };
@@ -81,7 +79,6 @@ export const AppointmentManagement = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non connecté");
 
-      // Trouver l'ID de l'étudiant à partir de son email
       const { data: studentData, error: studentError } = await supabase
         .from('profiles')
         .select('id')

@@ -1,12 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface TestResult {
   id: string;
   user_id: string;
   test_type: string;
-  results: Record<string, number>;
-  answers: number[];
+  results: Json;
+  answers?: number[];
   created_at: string;
+  updated_at: string;
 }
 
 interface UserProfile {
@@ -75,7 +77,8 @@ const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): stri
   // Analyse des résultats RIASEC
   const riasecTest = testResults.find(test => test.test_type === "RIASEC");
   if (riasecTest && riasecTest.results) {
-    const topRiasecScores = Object.entries(riasecTest.results)
+    const results = riasecTest.results as Record<string, number>;
+    const topRiasecScores = Object.entries(results)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 2);
 

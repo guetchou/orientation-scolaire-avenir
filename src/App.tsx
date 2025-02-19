@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -9,6 +10,7 @@ import MultipleIntelligenceTest from "./pages/MultipleIntelligenceTest";
 import LearningStyleTest from "./pages/LearningStyleTest";
 import TestResults from "./pages/TestResults";
 import { DashboardLayout } from "./components/DashboardLayout";
+import { ForumLayout } from "./components/forum/ForumLayout";
 import "./App.css";
 
 console.info("Application starting...");
@@ -25,6 +27,7 @@ function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/results" element={<TestResults />} />
+          <Route path="/forum" element={<ForumLayout />} />
         </Route>
         <Route path="/test-riasec" element={<RiasecTest />} />
         <Route path="/test-emotional" element={<EmotionalTest />} />

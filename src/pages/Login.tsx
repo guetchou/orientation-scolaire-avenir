@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,44 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleRedirect = async (userId: string) => {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, onboarding_completed')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error("Erreur lors de la récupération du profil:", profileError);
+        navigate("/dashboard");
+        return;
+      }
+
+      if (!profile.onboarding_completed) {
+        navigate("/onboarding");
+        return;
+      }
+
+      switch (profile.role) {
+        case "admin":
+          navigate("/admin/dashboard");
+          break;
+        case "conseiller":
+          navigate("/conseiller/dashboard");
+          break;
+        case "etudiant":
+          navigate("/dashboard");
+          break;
+        default:
+          navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la redirection:", error);
+      navigate("/dashboard");
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +64,6 @@ const Login = () => {
       return;
     }
 
-    // Validation basique
     if (!email || !password) {
       setError("Veuillez remplir tous les champs");
       setLoading(false);
@@ -41,7 +77,7 @@ const Login = () => {
     }
     
     try {
-      const { error: signInError } = await supabase!.auth.signInWithPassword({
+      const { data: authData, error: signInError } = await supabase!.auth.signInWithPassword({
         email,
         password,
       });
@@ -56,8 +92,10 @@ const Login = () => {
         return;
       }
 
-      toast.success("Connexion réussie !");
-      navigate("/dashboard");
+      if (authData?.user) {
+        toast.success("Connexion réussie !");
+        await handleRedirect(authData.user.id);
+      }
     } catch (error: any) {
       console.error("Erreur inattendue:", error);
       setError("Une erreur inattendue s'est produite");
@@ -68,7 +106,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header avec bouton retour */}
       <div className="p-4">
         <Button
           variant="ghost"

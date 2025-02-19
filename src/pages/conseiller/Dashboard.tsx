@@ -1,6 +1,8 @@
 
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { AppointmentManagement } from "@/components/conseiller/AppointmentManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ConseillerDashboard = () => {
   return (
@@ -11,29 +13,29 @@ const ConseillerDashboard = () => {
 
       <DashboardStats />
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Mes Étudiants</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-500">
-              Liste des étudiants suivis à venir...
-            </p>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="appointments" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="appointments">Rendez-vous</TabsTrigger>
+          <TabsTrigger value="students">Mes Étudiants</TabsTrigger>
+        </TabsList>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Rendez-vous</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-500">
-              Calendrier des rendez-vous à venir...
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="appointments">
+          <AppointmentManagement />
+        </TabsContent>
+        
+        <TabsContent value="students">
+          <Card>
+            <CardHeader>
+              <CardTitle>Mes Étudiants</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500">
+                Liste des étudiants à venir...
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

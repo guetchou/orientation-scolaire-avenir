@@ -29,9 +29,10 @@ const Onboarding = () => {
         .from('profiles')
         .upsert({
           id: user.id,
-          role: role || 'etudiant',
-          onboarding_completed: true,
+          department: role || 'etudiant', // Utilisation de department pour le rôle
+          status: 'active', // Indique que l'onboarding est terminé
           updated_at: new Date().toISOString(),
+          email: user.email || '',
         });
 
       if (updateError) {
@@ -42,7 +43,6 @@ const Onboarding = () => {
 
       toast.success("Profil mis à jour avec succès !");
       
-      // Redirection selon le rôle
       switch (role) {
         case "admin":
           navigate("/admin/dashboard");

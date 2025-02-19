@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,9 +18,10 @@ const Login = () => {
 
   const handleRedirect = async (userId: string) => {
     try {
+      // Récupérer le profil utilisateur avec les champs existants
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role, onboarding_completed')
+        .select('department, position, status')
         .eq('id', userId)
         .single();
 
@@ -29,12 +31,16 @@ const Login = () => {
         return;
       }
 
-      if (!profile.onboarding_completed) {
+      // Utiliser le champ department comme rôle temporaire
+      const userRole = profile?.department || 'etudiant';
+      const hasCompletedOnboarding = profile?.status === 'active';
+
+      if (!hasCompletedOnboarding) {
         navigate("/onboarding");
         return;
       }
 
-      switch (profile.role) {
+      switch (userRole) {
         case "admin":
           navigate("/admin/dashboard");
           break;
@@ -42,8 +48,6 @@ const Login = () => {
           navigate("/conseiller/dashboard");
           break;
         case "etudiant":
-          navigate("/dashboard");
-          break;
         default:
           navigate("/dashboard");
       }

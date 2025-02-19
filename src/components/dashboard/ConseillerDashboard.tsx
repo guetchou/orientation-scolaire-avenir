@@ -1,88 +1,91 @@
-
-import { useState, useEffect } from "react";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { AppointmentManagement } from "@/components/conseiller/AppointmentManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StudentList } from "./StudentList";
-import { AvailabilityManager } from "./AvailabilityManager";
-import { DashboardStats } from "./DashboardStats";
-import { StatisticsReport } from "./StatisticsReport";
-import { 
-  Users, 
-  Calendar, 
-  BarChart, 
-  ClipboardList 
-} from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import type { DashboardStats as DashboardStatsType } from "@/types/dashboard";
+
+// Ajout du système de cache et d'optimisation
+import { useConseillerStats } from "@/hooks/useConseillerStats";
+import { handleError } from "@/utils/errorHandler";
+import { useCallback, Suspense, lazy } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useUser } from "@supabase/auth-helpers-react";
+
+// Lazy loading des composants lourds
+const StatisticsReport = lazy(() => import('./StatisticsReport'));
+const AvailabilityManager = lazy(() => import('./AvailabilityManager'));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 30 * 60 * 1000,
+      retry: 1,
+      suspense: true,
+    },
+  },
+});
 
 export const ConseillerDashboard = () => {
-  const [stats, setStats] = useState<DashboardStatsType>({
-    total_students: 0,
-    tests_completed: 0,
-    appointments_scheduled: 0,
-    average_progress: 0,
-  });
+  const { data: stats, isLoading, error } = useConseillerStats(user?.id);
+  const { user } = useUser();
 
-  useEffect(() => {
-    fetchDashboardStats();
+  const handleError = useCallback((error: unknown) => {
+    handleError(error);
   }, []);
 
-  const fetchDashboardStats = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Récupérer les statistiques globales
-      const { data, error } = await supabase
-        .from('dashboard_stats')
-        .select('*')
-        .eq('conseiller_id', user.id)
-        .single();
-
-      if (error) throw error;
-
-      setStats(data);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des statistiques:", error);
-      toast.error("Erreur lors du chargement des statistiques");
-    }
-  };
+  if (error) {
+    return <div>Erreur de chargement du dashboard</div>;
+  }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Tableau de bord conseiller</h1>
+    <QueryClientProvider client={queryClient}>
+      <Suspense fallback={<div>Chargement...</div>}>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Dashboard Conseiller</h1>
+          </div>
 
-      <DashboardStats stats={stats} />
+          <DashboardStats />
 
-      <Tabs defaultValue="students" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="students">
-            <Users className="w-4 h-4 mr-2" />
-            Étudiants
-          </TabsTrigger>
-          <TabsTrigger value="availability">
-            <Calendar className="w-4 h-4 mr-2" />
-            Disponibilités
-          </TabsTrigger>
-          <TabsTrigger value="reports">
-            <BarChart className="w-4 h-4 mr-2" />
-            Rapports
-          </TabsTrigger>
-        </TabsList>
+          <Tabs defaultValue="appointments" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="appointments">Rendez-vous</TabsTrigger>
+              <TabsTrigger value="students">Mes Étudiants</TabsTrigger>
+              <TabsTrigger value="reports">Rapports</TabsTrigger>
+              <TabsTrigger value="availability">Disponibilité</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="students">
-          <StudentList />
-        </TabsContent>
+            <TabsContent value="appointments">
+              <AppointmentManagement />
+            </TabsContent>
 
-        <TabsContent value="availability">
-          <AvailabilityManager />
-        </TabsContent>
+            <TabsContent value="students">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mes Étudiants</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-500">
+                    Liste des étudiants à venir...
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        <TabsContent value="reports">
-          <StatisticsReport />
-        </TabsContent>
-      </Tabs>
-    </div>
+            <TabsContent value="reports">
+              <Suspense fallback={<div>Chargement des statistiques...</div>}>
+                <StatisticsReport />
+              </Suspense>
+            </TabsContent>
+
+            <TabsContent value="availability">
+              <Suspense fallback={<div>Chargement du calendrier...</div>}>
+                <AvailabilityManager />
+              </Suspense>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </Suspense>
+    </QueryClientProvider>
   );
 };

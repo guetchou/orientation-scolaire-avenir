@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
-import { AuthError } from "@supabase/supabase-js";
+import { ArrowLeft, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -55,7 +57,6 @@ const Register = () => {
       if (signUpError) {
         console.error("Erreur d'inscription:", signUpError);
         
-        // Gestion spécifique des erreurs
         if (signUpError.message === "User already registered") {
           setError("Un compte existe déjà avec cet email. Veuillez vous connecter.");
           setTimeout(() => {
@@ -78,80 +79,140 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-heading font-bold text-gray-900">
-            Créer un compte
-          </h2>
-          {!isSupabaseConfigured() && (
-            <p className="mt-2 text-center text-sm text-red-600">
-              La connexion à Supabase n'est pas configurée. Veuillez configurer l'intégration Supabase.
-            </p>
-          )}
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
-              {error.includes("existe déjà") && (
-                <p className="mt-2 text-sm text-red-700">
-                  <Link to="/login" className="font-medium text-red-700 hover:text-red-600 underline">
-                    Connectez-vous ici
-                  </Link>
-                </p>
-              )}
-            </div>
-          )}
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Adresse email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Adresse email"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mot de passe"
-                minLength={6}
-              />
-            </div>
-          </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Header avec bouton retour */}
+      <div className="p-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour à l'accueil
+        </Button>
+      </div>
 
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-sm"
+        >
           <div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading || !isSupabaseConfigured()}
-            >
-              {loading ? "Inscription..." : "S'inscrire"}
-            </Button>
+            <h2 className="mt-2 text-center text-3xl font-heading font-bold text-gray-900">
+              Créer un compte
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Rejoignez-nous pour accéder à tous nos services d'orientation
+            </p>
+            {!isSupabaseConfigured() && (
+              <div className="mt-4 p-4 bg-red-50 rounded-md">
+                <p className="text-sm text-red-600 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  La connexion à Supabase n'est pas configurée. Veuillez configurer l'intégration Supabase.
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Déjà inscrit ?{" "}
-              <Link to="/login" className="font-medium text-primary hover:text-primary/80">
-                Connectez-vous ici
-              </Link>
-            </p>
-          </div>
-        </form>
+          <form className="mt-8 space-y-6" onSubmit={handleRegister}>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-md bg-red-50 p-4"
+              >
+                <p className="text-sm text-red-700 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </p>
+                {error.includes("existe déjà") && (
+                  <p className="mt-2 text-sm text-red-700">
+                    <Link to="/login" className="font-medium text-red-700 hover:text-red-600 underline">
+                      Connectez-vous ici
+                    </Link>
+                  </p>
+                )}
+              </motion.div>
+            )}
+
+            <div className="rounded-md space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Adresse email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="vous@exemple.com"
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Mot de passe
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimum 6 caractères"
+                    className="pl-10"
+                    minLength={6}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Button
+                type="submit"
+                className="w-full relative"
+                disabled={loading || !isSupabaseConfigured()}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Inscription en cours...
+                  </>
+                ) : (
+                  "S'inscrire"
+                )}
+              </Button>
+            </div>
+
+            <div className="text-center space-y-2">
+              <p className="text-sm text-gray-600">
+                Déjà inscrit ?{" "}
+                <Link to="/login" className="font-medium text-primary hover:text-primary/80">
+                  Connectez-vous ici
+                </Link>
+              </p>
+              <p className="text-xs text-gray-500">
+                En vous inscrivant, vous acceptez nos{" "}
+                <a href="#" className="underline hover:text-gray-700">conditions d'utilisation</a>
+                {" "}et notre{" "}
+                <a href="#" className="underline hover:text-gray-700">politique de confidentialité</a>
+              </p>
+            </div>
+          </form>
+        </motion.div>
       </div>
     </div>
   );

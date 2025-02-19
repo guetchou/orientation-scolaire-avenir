@@ -1,18 +1,21 @@
-
-// Algorithmes d'analyse des résultats des tests et des données utilisateur
 import { supabase } from "@/integrations/supabase/client";
 
 interface TestResult {
+  id: string;
+  user_id: string;
   test_type: string;
   results: Record<string, number>;
   answers: number[];
+  created_at: string;
 }
 
 interface UserProfile {
+  id: string;
   department: string;
   interests?: string;
   education?: string;
   experience?: string;
+  email?: string;
 }
 
 export interface CareerRecommendation {

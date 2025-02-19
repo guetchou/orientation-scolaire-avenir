@@ -21,13 +21,23 @@ interface Appointment {
   time: string;
   notes: string;
   status: 'pending' | 'confirmed' | 'cancelled';
+  created_at: string;
   student_email?: string;
+  profiles?: {
+    email: string;
+  };
+}
+
+interface NewAppointment {
+  studentEmail: string;
+  time: string;
+  notes: string;
 }
 
 export const AppointmentManagement = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>();
-  const [newAppointment, setNewAppointment] = useState({
+  const [newAppointment, setNewAppointment] = useState<NewAppointment>({
     studentEmail: "",
     time: "",
     notes: "",
@@ -49,10 +59,7 @@ export const AppointmentManagement = () => {
 
       if (error) throw error;
 
-      setAppointments(data.map(apt => ({
-        ...apt,
-        student_email: apt.profiles?.email
-      })));
+      setAppointments(data || []);
     } catch (error) {
       console.error('Erreur lors de la récupération des rendez-vous:', error);
       toast.error("Erreur lors du chargement des rendez-vous");

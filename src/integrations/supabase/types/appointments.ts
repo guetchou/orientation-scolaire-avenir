@@ -1,14 +1,15 @@
 
-export type Appointment = {
+export interface Appointment {
   id: string;
   conseiller_id: string;
   student_id: string;
+  student_email?: string;
   date: string;
   time: string;
-  notes: string;
-  status: "pending" | "confirmed" | "cancelled";
+  notes: string | null;
+  status: 'pending' | 'confirmed' | 'cancelled';
   created_at: string;
   updated_at: string;
-};
-
-export type AppointmentInsert = Omit<Appointment, "id" | "created_at" | "updated_at">;
+  reminder_sent?: boolean;
+  reminder_scheduled?: string;
+}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,6 +23,7 @@ export function useAuth() {
       } catch (err) {
         console.error('Erreur de vérification auth:', err);
         setError(err as Error);
+        toast.error("Erreur lors de la vérification de l'authentification");
       } finally {
         setLoading(false);
       }
@@ -29,6 +31,7 @@ export function useAuth() {
 
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -49,9 +52,15 @@ export function useAuth() {
       });
 
       if (error) throw error;
+      
+      if (data.user) {
+        toast.success('Connexion réussie !');
+      }
+      
       return data;
     } catch (err) {
       console.error('Erreur de connexion:', err);
+      toast.error("Erreur lors de la connexion");
       throw err;
     }
   };
@@ -61,12 +70,21 @@ export function useAuth() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (error) throw error;
+      
+      if (data.user) {
+        toast.success('Inscription réussie ! Veuillez vérifier votre email.');
+      }
+      
       return data;
     } catch (err) {
-      console.error('Erreur d\'inscription:', err);
+      console.error("Erreur d'inscription:", err);
+      toast.error("Erreur lors de l'inscription");
       throw err;
     }
   };
@@ -75,8 +93,10 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      toast.success('Déconnexion réussie');
     } catch (err) {
       console.error('Erreur de déconnexion:', err);
+      toast.error('Erreur lors de la déconnexion');
       throw err;
     }
   };
@@ -88,8 +108,10 @@ export function useAuth() {
       });
 
       if (error) throw error;
+      toast.success('Email de réinitialisation envoyé !');
     } catch (err) {
       console.error('Erreur de réinitialisation du mot de passe:', err);
+      toast.error('Erreur lors de la réinitialisation du mot de passe');
       throw err;
     }
   };
@@ -101,8 +123,10 @@ export function useAuth() {
       });
 
       if (error) throw error;
+      toast.success('Mot de passe mis à jour avec succès');
     } catch (err) {
       console.error('Erreur de mise à jour du mot de passe:', err);
+      toast.error('Erreur lors de la mise à jour du mot de passe');
       throw err;
     }
   };

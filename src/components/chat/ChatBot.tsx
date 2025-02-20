@@ -48,7 +48,7 @@ export function ChatBot() {
         .single()
 
       if (secretError || !secret) {
-        throw new Error('Impossible de récupérer la clé API')
+        throw new Error("Impossible de récupérer la clé API")
       }
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -75,7 +75,7 @@ export function ChatBot() {
       });
 
       if (!response.ok) {
-        throw new Error('Erreur de communication avec l'API')
+        throw new Error("Erreur de communication avec l'API")
       }
 
       const data = await response.json()

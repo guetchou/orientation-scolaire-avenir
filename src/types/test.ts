@@ -5,10 +5,10 @@ export interface TestResult {
   id: string;
   user_id: string;
   test_type: string;
-  results: Record<string, number>;
+  results: Json;
   answers: Json;
   created_at: string;
-  updated_at: string;
+  progress_score: number;
 }
 
 export interface EmotionalTestResults {
@@ -21,4 +21,13 @@ export interface LearningStyleResults {
   auditory: number;
   kinesthetic: number;
   reading: number;
+}
+
+export interface RiasecResults {
+  realistic: number;
+  investigative: number;
+  artistic: number;
+  social: number;
+  enterprising: number;
+  conventional: number;
 }

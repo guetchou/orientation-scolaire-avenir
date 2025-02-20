@@ -43,7 +43,6 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
-      // Récupérer la clé API depuis Supabase
       const { data: apiKeyData, error: secretError } = await supabase
         .from('api_keys')
         .select('value')
@@ -61,7 +60,7 @@ export function ChatBot() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -72,16 +71,25 @@ export function ChatBot() {
               content: input
             }
           ],
-          temperature: 0.7,
           max_tokens: 1000,
+          temperature: 0.2,
+          top_p: 0.9,
+          search_domain_filter: null,
+          return_images: false,
+          return_related_questions: false,
+          frequency_penalty: 1,
+          presence_penalty: 0
         }),
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API Error:', errorData);
         throw new Error("Erreur de communication avec l'API")
       }
 
       const responseData = await response.json()
+      console.log('API Response:', responseData);
       
       const botMessage = {
         content: responseData.choices[0].message.content,
@@ -110,7 +118,6 @@ export function ChatBot() {
 
   return (
     <>
-      {/* Bouton flottant pour ouvrir le chat */}
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
@@ -120,7 +127,6 @@ export function ChatBot() {
         </Button>
       )}
 
-      {/* Fenêtre de chat flottante */}
       {isOpen && (
         <Card className="fixed bottom-4 right-4 w-[400px] h-[600px] shadow-2xl rounded-2xl flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between p-4 border-b">

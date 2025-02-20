@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { ChatMessage } from "./ChatMessage"
 import { Send } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Message {
   content: string
@@ -22,6 +23,7 @@ export function ChatBot() {
   ])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,10 +40,21 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
+      // Récupérer la clé API depuis Supabase
+      const { data: { secret }, error: secretError } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'PERPLEXITY_API_KEY')
+        .single()
+
+      if (secretError || !secret) {
+        throw new Error('Impossible de récupérer la clé API')
+      }
+
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Authorization': `Bearer ${secret.value}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -61,6 +74,10 @@ export function ChatBot() {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error('Erreur de communication avec l'API')
+      }
+
       const data = await response.json()
       
       const botMessage = {
@@ -72,6 +89,11 @@ export function ChatBot() {
       setMessages(prev => [...prev, botMessage])
     } catch (error) {
       console.error('Error:', error)
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la communication avec l'assistant."
+      })
       const errorMessage = {
         content: "Désolé, j'ai rencontré une erreur. Pouvez-vous reformuler votre question ?",
         isBot: true,

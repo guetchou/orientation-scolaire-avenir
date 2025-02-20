@@ -42,21 +42,21 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
-      // Récupérer la clé API depuis Supabase
-      const { data: { secret }, error: secretError } = await supabase
-        .from('secrets')
+      // Récupérer la clé API depuis Supabase avec le typage correct
+      const { data, error: secretError } = await supabase
+        .from('api_keys')
         .select('value')
         .eq('name', 'PERPLEXITY_API_KEY')
         .single()
 
-      if (secretError || !secret) {
+      if (secretError || !data) {
         throw new Error("Impossible de récupérer la clé API")
       }
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${secret.value}`,
+          'Authorization': `Bearer ${data.value}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

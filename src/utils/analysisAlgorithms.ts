@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { TestResult } from "@/types/supabase";
 import { Profile } from "@/types/supabase";
+import { LearningStyleResults, EmotionalTestResults } from "@/types/dashboard";
 
 interface UserProfile extends Profile {
   id: string;
@@ -83,7 +84,7 @@ const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): stri
   const learningTest = testResults.find(test => test.test_type === "learning_style");
   if (learningTest && learningTest.results) {
     const results = learningTest.results as LearningStyleResults;
-    const topLearningStyle = Object.entries(learningTest.results)
+    const topLearningStyle = Object.entries(results)
       .sort(([, a], [, b]) => b - a)[0];
 
     const learningStrengths: Record<string, string> = {

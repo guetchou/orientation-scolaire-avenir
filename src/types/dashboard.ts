@@ -13,4 +13,30 @@ export interface StudentProgress {
   completed_tests: number;
   last_test_date: string;
   progress_score: number;
+  next_appointment?: string;
+}
+
+export interface AvailabilitySlot {
+  id: string;
+  conseiller_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  created_at?: string;
+}
+
+export interface LearningStyleResults {
+  visual: number;
+  auditory: number;
+  reading: number;
+  kinesthetic: number;
+}
+
+export interface EmotionalTestResults {
+  selfAwareness: number;
+  empathy: number;
+  motivation: number;
+  socialSkills: number;
+  selfRegulation: number;
 }

@@ -1,24 +1,21 @@
+
+import { useState, useCallback, Suspense } from "react";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { AppointmentManagement } from "@/components/conseiller/AppointmentManagement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Ajout du système de cache et d'optimisation
 import { useConseillerStats } from "@/hooks/useConseillerStats";
 import { handleError } from "@/utils/errorHandler";
-import { useCallback, Suspense, lazy } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useUser } from "@supabase/auth-helpers-react";
-
-// Lazy loading des composants lourds
-const StatisticsReport = lazy(() => import('./StatisticsReport'));
-const AvailabilityManager = lazy(() => import('./AvailabilityManager'));
+import { StatisticsReport } from "./StatisticsReport";
+import { AvailabilityManager } from "./AvailabilityManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
-      cacheTime: 30 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
       retry: 1,
       suspense: true,
     },
@@ -26,10 +23,10 @@ const queryClient = new QueryClient({
 });
 
 export const ConseillerDashboard = () => {
-  const { data: stats, isLoading, error } = useConseillerStats(user?.id);
   const { user } = useUser();
-
-  const handleError = useCallback((error: unknown) => {
+  const { data: stats, isLoading, error } = useConseillerStats(user?.id);
+  
+  const handleErrors = useCallback((error: unknown) => {
     handleError(error);
   }, []);
 
@@ -73,15 +70,11 @@ export const ConseillerDashboard = () => {
             </TabsContent>
 
             <TabsContent value="reports">
-              <Suspense fallback={<div>Chargement des statistiques...</div>}>
-                <StatisticsReport />
-              </Suspense>
+              <StatisticsReport />
             </TabsContent>
 
             <TabsContent value="availability">
-              <Suspense fallback={<div>Chargement du calendrier...</div>}>
-                <AvailabilityManager />
-              </Suspense>
+              <AvailabilityManager />
             </TabsContent>
           </Tabs>
         </div>

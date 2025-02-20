@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ConseillerDashboard } from '../ConseillerDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -11,9 +12,9 @@ vi.mock('@/integrations/supabase/client', () => ({
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
-        single: vi.fn()
-      })),
-      eq: vi.fn()
+        single: vi.fn(),
+        eq: vi.fn()
+      }))
     }))
   }
 }));
@@ -36,9 +37,10 @@ describe('ConseillerDashboard', () => {
       average_progress: 75
     };
 
-    vi.mocked(supabase.from).mockImplementationOnce(() => ({
+    vi.mocked(supabase.from).mockImplementation(() => ({
       select: () => ({
-        single: () => Promise.resolve({ data: mockStats, error: null })
+        single: () => Promise.resolve({ data: mockStats, error: null }),
+        eq: vi.fn()
       })
     }));
 

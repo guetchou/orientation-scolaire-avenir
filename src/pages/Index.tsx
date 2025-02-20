@@ -19,32 +19,45 @@ export default function Index() {
       <Navbar />
       <div className="container mx-auto px-4 py-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <h2 className="text-2xl font-bold">Exemple d'Avatar</h2>
+          <h2 className="text-2xl font-bold">Nos Conseillers Professionnels</h2>
           <div className="flex gap-8">
-            {/* Avatar avec animation et statut en ligne */}
+            {/* Avatar homme professionnel */}
             <div className="text-center">
               <Avatar showAnimation online showBorder>
-                <AvatarImage src="/user-avatar.png" alt="Avatar animé" />
-                <AvatarFallback>AA</AvatarFallback>
+                <AvatarImage 
+                  src="photo-1581092795360-fd1ca04f0952" 
+                  alt="Conseiller professionnel" 
+                />
+                <AvatarFallback>MP</AvatarFallback>
               </Avatar>
-              <p className="mt-2 text-sm text-muted-foreground">Animé & En ligne</p>
+              <p className="mt-2 text-sm font-medium">Michel Patel</p>
+              <p className="text-sm text-muted-foreground">Conseiller Senior</p>
             </div>
 
-            {/* Avatar avec bordure */}
+            {/* Avatar femme professionnelle */}
+            <div className="text-center">
+              <Avatar showBorder showAnimation>
+                <AvatarImage 
+                  src="photo-1581091226825-a6a2a5aee158" 
+                  alt="Conseillère professionnelle" 
+                />
+                <AvatarFallback>SC</AvatarFallback>
+              </Avatar>
+              <p className="mt-2 text-sm font-medium">Sophie Claire</p>
+              <p className="text-sm text-muted-foreground">Conseillère Orientation</p>
+            </div>
+
+            {/* Avatar professionnel supplémentaire */}
             <div className="text-center">
               <Avatar showBorder>
-                <AvatarImage src="/ai-avatar.png" alt="Avatar avec bordure" />
-                <AvatarFallback>AB</AvatarFallback>
+                <AvatarImage 
+                  src="photo-1486312338219-ce68d2c6f44d" 
+                  alt="Conseiller expert" 
+                />
+                <AvatarFallback>JM</AvatarFallback>
               </Avatar>
-              <p className="mt-2 text-sm text-muted-foreground">Avec bordure</p>
-            </div>
-
-            {/* Avatar simple */}
-            <div className="text-center">
-              <Avatar>
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
-              <p className="mt-2 text-sm text-muted-foreground">Simple</p>
+              <p className="mt-2 text-sm font-medium">Jean Martin</p>
+              <p className="text-sm text-muted-foreground">Expert Carrière</p>
             </div>
           </div>
         </div>

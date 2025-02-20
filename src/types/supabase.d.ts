@@ -42,13 +42,15 @@ export interface Profile extends Tables['profiles']['Row'] {
   status?: string;
 }
 
+export type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled';
+
 export interface Appointment extends Tables['appointments']['Row'] {
   id: string;
   conseiller_id: string | null;
   student_id: string | null;
   date: string;
   time: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: AppointmentStatus;
   notes: string | null;
   created_at: string | null;
   updated_at: string | null;

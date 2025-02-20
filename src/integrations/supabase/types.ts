@@ -37,7 +37,7 @@ export type Database = {
           date: string
           id: string
           notes: string | null
-          status: string | null
+          status: Database["public"]["Enums"]["appointment_status"] | null
           student_id: string | null
           time: string
           updated_at: string | null
@@ -48,7 +48,7 @@ export type Database = {
           date: string
           id?: string
           notes?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["appointment_status"] | null
           student_id?: string | null
           time: string
           updated_at?: string | null
@@ -59,7 +59,7 @@ export type Database = {
           date?: string
           id?: string
           notes?: string | null
-          status?: string | null
+          status?: Database["public"]["Enums"]["appointment_status"] | null
           student_id?: string | null
           time?: string
           updated_at?: string | null
@@ -80,6 +80,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "appointments_conseiller_id_fkey"
+            columns: ["conseiller_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
+          },
+          {
             foreignKeyName: "appointments_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
@@ -92,6 +99,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -137,6 +151,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availabilities_conseiller_id_fkey"
+            columns: ["conseiller_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
           },
         ]
       }
@@ -218,6 +239,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "forum_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
+          },
         ]
       }
       forum_posts: {
@@ -270,6 +298,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "forum_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
+          },
+          {
             foreignKeyName: "forum_posts_domain_fkey"
             columns: ["domain"]
             isOneToOne: false
@@ -317,6 +352,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_replies_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
           },
           {
             foreignKeyName: "forum_replies_post_id_fkey"
@@ -416,31 +458,31 @@ export type Database = {
       }
       test_results: {
         Row: {
-          answers: Json | null
+          answers: Json
           created_at: string | null
           id: string
           progress_score: number | null
-          results: Json | null
+          results: Json
           test_type: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
-          answers?: Json | null
+          answers: Json
           created_at?: string | null
           id?: string
           progress_score?: number | null
-          results?: Json | null
+          results: Json
           test_type: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
-          answers?: Json | null
+          answers?: Json
           created_at?: string | null
           id?: string
           progress_score?: number | null
-          results?: Json | null
+          results?: Json
           test_type?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -457,6 +499,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "test_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "student_progress"
+            referencedColumns: ["student_id"]
+          },
         ]
       }
     }
@@ -471,12 +520,22 @@ export type Database = {
         }
         Relationships: []
       }
+      student_progress: {
+        Row: {
+          completed_tests: number | null
+          last_test_date: string | null
+          next_appointment: string | null
+          student_id: string | null
+          student_name: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      appointment_status: "pending" | "confirmed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never

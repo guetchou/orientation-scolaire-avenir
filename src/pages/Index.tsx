@@ -10,12 +10,14 @@ import { EventsSection } from "@/components/home/EventsSection";
 import { PartnersSection } from "@/components/home/PartnersSection";
 import { FaqSection } from "@/components/home/FaqSection";
 import { ContactSection } from "@/components/home/ContactSection";
+import { ChatSection } from "@/components/home/ChatSection";
 
 export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
+      <ChatSection />
       <StepsSection />
       <TestsSection />
       <StatisticsSection />

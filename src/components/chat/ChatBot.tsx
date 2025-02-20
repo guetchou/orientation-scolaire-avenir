@@ -7,6 +7,7 @@ import { Send, MessageCircle, X } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 import { Card } from "@/components/ui/card"
+import { Avatar } from "@/components/ui/avatar"
 
 interface Message {
   content: string
@@ -42,21 +43,21 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
-      // Récupérer la clé API depuis Supabase avec le typage correct
-      const { data: apiKey, error: secretError } = await supabase
+      // Récupérer la clé API depuis Supabase
+      const { data: apiKeyData, error: secretError } = await supabase
         .from('api_keys')
         .select('value')
         .eq('name', 'PERPLEXITY_API_KEY')
         .single()
 
-      if (secretError || !apiKey) {
+      if (secretError || !apiKeyData) {
         throw new Error("Impossible de récupérer la clé API")
       }
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey.value}`,
+          'Authorization': `Bearer ${apiKeyData.value}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -124,14 +125,13 @@ export function ChatBot() {
         <Card className="fixed bottom-4 right-4 w-[400px] h-[600px] shadow-2xl rounded-2xl flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">
-              <div className="relative">
+              <Avatar online showBorder>
                 <img
-                  src="/ai-avatar.png"
+                  src="https://raw.githubusercontent.com/shadcn/ui/main/apps/www/public/avatars/01.png"
                   alt="Assistant Avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />
-                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-              </div>
+              </Avatar>
               <div>
                 <h3 className="font-semibold">Assistant d'orientation</h3>
                 <p className="text-xs text-muted-foreground">En ligne</p>

@@ -3,9 +3,10 @@ import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ChatMessage } from "./ChatMessage"
-import { Send } from "lucide-react"
+import { Send, MessageCircle, X } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
+import { Card } from "@/components/ui/card"
 
 interface Message {
   content: string
@@ -14,6 +15,7 @@ interface Message {
 }
 
 export function ChatBot() {
+  const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       content: "Bonjour ! Je suis votre assistant d'orientation. Comment puis-je vous aider aujourd'hui ?",
@@ -106,31 +108,72 @@ export function ChatBot() {
   }
 
   return (
-    <div className="flex flex-col h-[600px] w-full max-w-2xl mx-auto bg-background border rounded-lg shadow-lg">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            content={message.content}
-            isBot={message.isBot}
-            timestamp={message.timestamp}
-          />
-        ))}
-      </div>
-      <form onSubmit={sendMessage} className="border-t p-4">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Posez votre question..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button type="submit" disabled={isLoading}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
-    </div>
-  )
+    <>
+      {/* Bouton flottant pour ouvrir le chat */}
+      {!isOpen && (
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* Fenêtre de chat flottante */}
+      {isOpen && (
+        <Card className="fixed bottom-4 right-4 w-[400px] h-[600px] shadow-2xl rounded-2xl flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <img
+                  src="/ai-avatar.png"
+                  alt="Assistant Avatar"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Assistant d'orientation</h3>
+                <p className="text-xs text-muted-foreground">En ligne</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(false)}
+              className="hover:bg-muted"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((message, index) => (
+              <ChatMessage
+                key={index}
+                content={message.content}
+                isBot={message.isBot}
+                timestamp={message.timestamp}
+              />
+            ))}
+          </div>
+
+          <form onSubmit={sendMessage} className="border-t p-4 bg-background/95">
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Posez votre question..."
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isLoading}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
+    </>
+  );
 }

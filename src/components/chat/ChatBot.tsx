@@ -43,20 +43,20 @@ export function ChatBot() {
 
     try {
       // Récupérer la clé API depuis Supabase avec le typage correct
-      const { data, error: secretError } = await supabase
+      const { data: apiKey, error: secretError } = await supabase
         .from('api_keys')
         .select('value')
         .eq('name', 'PERPLEXITY_API_KEY')
         .single()
 
-      if (secretError || !data) {
+      if (secretError || !apiKey) {
         throw new Error("Impossible de récupérer la clé API")
       }
 
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${data.value}`,
+          'Authorization': `Bearer ${apiKey.value}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -80,10 +80,10 @@ export function ChatBot() {
         throw new Error("Erreur de communication avec l'API")
       }
 
-      const data = await response.json()
+      const responseData = await response.json()
       
       const botMessage = {
-        content: data.choices[0].message.content,
+        content: responseData.choices[0].message.content,
         isBot: true,
         timestamp: new Date().toLocaleTimeString()
       }

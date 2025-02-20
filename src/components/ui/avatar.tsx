@@ -3,33 +3,57 @@ import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 import { UserCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+
+const AvatarContainer = motion.div
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
     online?: boolean
     showBorder?: boolean
+    showAnimation?: boolean
   }
->(({ className, online, showBorder = false, ...props }, ref) => (
-  <div className="relative inline-block">
+>(({ className, online, showBorder = false, showAnimation = false, ...props }, ref) => (
+  <AvatarContainer 
+    className="relative inline-block"
+    animate={showAnimation ? {
+      scale: [1, 1.05, 1],
+      rotate: [0, 5, -5, 0]
+    } : undefined}
+    transition={{
+      duration: 2,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatDelay: 3
+    }}
+  >
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full",
-        showBorder && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        "relative flex h-12 w-12 shrink-0 overflow-hidden rounded-full transition-all duration-300",
+        showBorder && "ring-2 ring-primary ring-offset-2 ring-offset-background hover:ring-primary/80",
+        "hover:scale-105",
         className
       )}
       {...props}
     />
     {online !== undefined && (
-      <span 
+      <motion.span 
         className={cn(
           "absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background",
           online ? "bg-green-500" : "bg-gray-400"
         )}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 20
+        }}
       />
     )}
-  </div>
+  </AvatarContainer>
 ))
 Avatar.displayName = AvatarPrimitive.Root.displayName
 
@@ -40,7 +64,8 @@ const AvatarImage = React.forwardRef<
   <AvatarPrimitive.Image
     ref={ref}
     className={cn(
-      "aspect-square h-full w-full object-cover transition-opacity duration-300",
+      "aspect-square h-full w-full object-cover",
+      "transition-opacity duration-300",
       className
     )}
     {...props}
@@ -56,6 +81,7 @@ const AvatarFallback = React.forwardRef<
     ref={ref}
     className={cn(
       "flex h-full w-full items-center justify-center rounded-full bg-muted",
+      "animate-in fade-in duration-200",
       className
     )}
     {...props}

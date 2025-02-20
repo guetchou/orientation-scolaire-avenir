@@ -1,8 +1,15 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, BookOpen, Target, Trophy } from "lucide-react";
 
+interface StatItem {
+  title: string;
+  value: string;
+  icon: JSX.Element;
+}
+
 export const DashboardStats = () => {
-  const stats = [
+  const stats: StatItem[] = [
     {
       title: "Tests complétés",
       value: "4",

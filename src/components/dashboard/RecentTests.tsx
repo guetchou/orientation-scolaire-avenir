@@ -1,7 +1,14 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+interface Test {
+  name: string;
+  date: string;
+  score: string;
+}
+
 export const RecentTests = () => {
-  const tests = [
+  const tests: Test[] = [
     {
       name: "Test RIASEC",
       date: "15 Avril 2024",

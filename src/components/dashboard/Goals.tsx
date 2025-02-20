@@ -2,8 +2,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
+interface Goal {
+  title: string;
+  progress: number;
+}
+
 export const Goals = () => {
-  const goals = [
+  const goals: Goal[] = [
     {
       title: "Identifier mes centres d'intérêt",
       progress: 80,

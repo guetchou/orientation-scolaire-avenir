@@ -1,43 +1,37 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import { Search, Calendar, ArrowUpRight } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import type { StudentProgress } from "@/types/dashboard";
+import { Input } from "@/components/ui/input";
+import { StudentProgress } from "@/types/dashboard";
 
 export const StudentList = () => {
   const [students, setStudents] = useState<StudentProgress[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetchStudents();
+    // Simuler le chargement des données
+    const mockData: StudentProgress[] = [
+      {
+        student_id: "1",
+        student_name: "Alice Martin",
+        completed_tests: 3,
+        last_test_date: "2024-03-15",
+        progress_score: 75,
+        next_appointment: "2024-03-20"
+      },
+      {
+        student_id: "2",
+        student_name: "Thomas Dubois",
+        completed_tests: 2,
+        last_test_date: "2024-03-14",
+        progress_score: 60,
+        next_appointment: "2024-03-22"
+      }
+    ];
+
+    setStudents(mockData);
   }, []);
-
-  const fetchStudents = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('student_progress')
-        .select('*')
-        .eq('conseiller_id', user.id);
-
-      if (error) throw error;
-
-      setStudents(data || []);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des étudiants:", error);
-      toast.error("Erreur lors du chargement des étudiants");
-    }
-  };
 
   const filteredStudents = students.filter(student =>
     student.student_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,57 +40,43 @@ export const StudentList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Suivi des étudiants</CardTitle>
+        <CardTitle>Liste des Étudiants</CardTitle>
+        <Input
+          placeholder="Rechercher un étudiant..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Rechercher un étudiant..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <div className="divide-y">
-            {filteredStudents.map((student) => (
-              <div key={student.id} className="py-4">
-                <div className="flex items-center justify-between mb-2">
+          {filteredStudents.map((student) => (
+            <Card key={student.student_id}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">{student.student_name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span>Dernier test: {format(new Date(student.last_test_date), 'dd/MM/yyyy')}</span>
-                      <span>•</span>
-                      <span>Tests complétés: {student.completed_tests}</span>
-                    </div>
+                    <p className="text-sm text-gray-500">
+                      Tests complétés : {student.completed_tests}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Dernier test : {new Date(student.last_test_date).toLocaleDateString()}
+                    </p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    <ArrowUpRight className="w-4 h-4 mr-2" />
-                    Voir profil
-                  </Button>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">
+                      Progression : {student.progress_score}%
+                    </p>
+                    {student.next_appointment && (
+                      <p className="text-sm text-primary">
+                        Prochain RDV : {new Date(student.next_appointment).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progression globale</span>
-                    <span>{student.progress_score}%</span>
-                  </div>
-                  <Progress value={student.progress_score} />
-                </div>
-
-                {student.next_appointment && (
-                  <div className="mt-2">
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      Prochain RDV: {format(new Date(student.next_appointment), 'dd/MM/yyyy')}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </CardContent>
     </Card>

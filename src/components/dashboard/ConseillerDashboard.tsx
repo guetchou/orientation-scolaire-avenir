@@ -15,70 +15,69 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
-      retry: 1,
-      suspense: true,
+      retry: 1
     },
   },
 });
 
 export const ConseillerDashboard = () => {
-  const { user } = useUser();
-  const { data: stats, isLoading, error } = useConseillerStats(user?.id);
+  const currentUser = useUser();
+  const userId = currentUser?.id;
+  
+  const { data: stats, isLoading, error } = useConseillerStats(userId);
   
   const handleErrors = useCallback((error: unknown) => {
     handleError(error);
   }, []);
 
   if (error) {
+    handleErrors(error);
     return <div>Erreur de chargement du dashboard</div>;
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<div>Chargement...</div>}>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">Dashboard Conseiller</h1>
-          </div>
-
-          <DashboardStats />
-
-          <Tabs defaultValue="appointments" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="appointments">Rendez-vous</TabsTrigger>
-              <TabsTrigger value="students">Mes Étudiants</TabsTrigger>
-              <TabsTrigger value="reports">Rapports</TabsTrigger>
-              <TabsTrigger value="availability">Disponibilité</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="appointments">
-              <AppointmentManagement />
-            </TabsContent>
-
-            <TabsContent value="students">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Mes Étudiants</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-500">
-                    Liste des étudiants à venir...
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="reports">
-              <StatisticsReport />
-            </TabsContent>
-
-            <TabsContent value="availability">
-              <AvailabilityManager />
-            </TabsContent>
-          </Tabs>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Dashboard Conseiller</h1>
         </div>
-      </Suspense>
+
+        {!isLoading && <DashboardStats stats={stats} />}
+
+        <Tabs defaultValue="appointments" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="appointments">Rendez-vous</TabsTrigger>
+            <TabsTrigger value="students">Mes Étudiants</TabsTrigger>
+            <TabsTrigger value="reports">Rapports</TabsTrigger>
+            <TabsTrigger value="availability">Disponibilité</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="appointments">
+            <AppointmentManagement />
+          </TabsContent>
+
+          <TabsContent value="students">
+            <Card>
+              <CardHeader>
+                <CardTitle>Mes Étudiants</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500">
+                  Liste des étudiants à venir...
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <StatisticsReport />
+          </TabsContent>
+
+          <TabsContent value="availability">
+            <AvailabilityManager />
+          </TabsContent>
+        </Tabs>
+      </div>
     </QueryClientProvider>
   );
 };

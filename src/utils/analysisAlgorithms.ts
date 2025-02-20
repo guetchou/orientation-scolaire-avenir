@@ -1,16 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
+import { TestResult, EmotionalTestResults, LearningStyleResults } from "@/types/test";
 import { Json } from "@/integrations/supabase/types";
-
-interface TestResult {
-  id: string;
-  user_id: string;
-  test_type: string;
-  results: Json;
-  answers?: number[];
-  created_at: string;
-  updated_at: string;
-}
 
 interface UserProfile {
   id: string;
@@ -34,7 +24,6 @@ export const analyzeTestResults = async (userId: string): Promise<{
   suggestedTests: string[];
 }> => {
   try {
-    // Récupérer tous les résultats de tests de l'utilisateur
     const { data: testResults, error: testError } = await supabase
       .from("test_results")
       .select("*")
@@ -42,7 +31,6 @@ export const analyzeTestResults = async (userId: string): Promise<{
 
     if (testError) throw testError;
 
-    // Récupérer le profil de l'utilisateur
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("*")
@@ -51,13 +39,10 @@ export const analyzeTestResults = async (userId: string): Promise<{
 
     if (profileError) throw profileError;
 
-    // Analyser les forces principales
     const strengths = analyzeStrengths(testResults, profile);
 
-    // Générer des recommandations de carrière
     const recommendations = await generateCareerRecommendations(testResults, profile);
 
-    // Identifier les tests manquants ou à refaire
     const suggestedTests = suggestNextTests(testResults);
 
     return {
@@ -71,11 +56,9 @@ export const analyzeTestResults = async (userId: string): Promise<{
   }
 };
 
-// Analyse des forces basée sur les résultats des tests
 const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): string[] => {
   const strengths: string[] = [];
 
-  // Analyse des résultats RIASEC
   const riasecTest = testResults.find(test => test.test_type === "RIASEC");
   if (riasecTest && riasecTest.results) {
     const results = riasecTest.results as Record<string, number>;
@@ -83,7 +66,6 @@ const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): stri
       .sort(([, a], [, b]) => b - a)
       .slice(0, 2);
 
-    // Mapper les codes RIASEC avec des forces
     const riasecStrengths: Record<string, string> = {
       "R": "Capacités techniques et pratiques",
       "I": "Capacités analytiques et de recherche",
@@ -100,9 +82,9 @@ const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): stri
     });
   }
 
-  // Analyse du style d'apprentissage
   const learningTest = testResults.find(test => test.test_type === "learning_style");
   if (learningTest && learningTest.results) {
+    const results = learningTest.results as LearningStyleResults;
     const topLearningStyle = Object.entries(learningTest.results)
       .sort(([, a], [, b]) => b - a)[0];
 
@@ -118,25 +100,22 @@ const analyzeStrengths = (testResults: TestResult[], profile: UserProfile): stri
     }
   }
 
-  // Analyse de l'intelligence émotionnelle
   const emotionalTest = testResults.find(test => test.test_type === "emotional");
   if (emotionalTest && emotionalTest.results) {
-    const { selfAwareness, empathy } = emotionalTest.results;
-    if (selfAwareness > 7) strengths.push("Intelligence émotionnelle élevée");
-    if (empathy > 7) strengths.push("Grande capacité d'empathie");
+    const results = emotionalTest.results as EmotionalTestResults;
+    if (results.selfAwareness > 7) strengths.push("Intelligence émotionnelle élevée");
+    if (results.empathy > 7) strengths.push("Grande capacité d'empathie");
   }
 
-  return Array.from(new Set(strengths)); // Éliminer les doublons
+  return Array.from(new Set(strengths));
 };
 
-// Génération de recommandations de carrière
 const generateCareerRecommendations = async (
   testResults: TestResult[],
   profile: UserProfile
 ): Promise<CareerRecommendation[]> => {
   const recommendations: CareerRecommendation[] = [];
 
-  // Trouver les domaines les plus pertinents basés sur les résultats RIASEC
   const riasecTest = testResults.find(test => test.test_type === "RIASEC");
   if (riasecTest && riasecTest.results) {
     const topCodes = Object.entries(riasecTest.results)
@@ -144,7 +123,6 @@ const generateCareerRecommendations = async (
       .slice(0, 2)
       .map(([code]) => code);
 
-    // Matcher les codes RIASEC avec des domaines professionnels
     const careerFields: Record<string, string[]> = {
       "R": ["Ingénierie", "Technologies", "Construction"],
       "I": ["Recherche", "Sciences", "Médecine"],
@@ -154,24 +132,21 @@ const generateCareerRecommendations = async (
       "C": ["Finance", "Administration", "Logistique"]
     };
 
-    // Générer des recommandations basées sur les codes dominants
     topCodes.forEach(code => {
       const fields = careerFields[code] || [];
       fields.forEach(field => {
         recommendations.push({
           field,
-          score: riasecTest.results[code] / 10, // Score sur 10
+          score: riasecTest.results[code] / 10,
           reason: `Fort alignement avec votre profil ${code} (${careerFields[code]?.join(", ")})`,
-          matchingProfiles: Math.floor(Math.random() * 50) + 50 // Simulation de données
+          matchingProfiles: Math.floor(Math.random() * 50) + 50
         });
       });
     });
   }
 
-  // Affiner les recommandations avec le style d'apprentissage
   const learningTest = testResults.find(test => test.test_type === "learning_style");
   if (learningTest && learningTest.results) {
-    // Ajuster les scores en fonction du style d'apprentissage
     recommendations.forEach(rec => {
       if (learningTest.results.visual > 7 && 
           ["Design", "Arts", "Architecture"].includes(rec.field)) {
@@ -184,7 +159,6 @@ const generateCareerRecommendations = async (
     });
   }
 
-  // Analyser l'intelligence émotionnelle pour les métiers relationnels
   const emotionalTest = testResults.find(test => test.test_type === "emotional");
   if (emotionalTest && emotionalTest.results) {
     const { empathy, selfAwareness } = emotionalTest.results;
@@ -198,21 +172,17 @@ const generateCareerRecommendations = async (
     }
   }
 
-  // Trier et retourner les meilleures recommandations
   return recommendations
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 };
 
-// Suggestion des prochains tests à passer
 const suggestNextTests = (testResults: TestResult[]): string[] => {
   const allTests = ["RIASEC", "learning_style", "emotional", "personality"];
   const completedTests = new Set(testResults.map(test => test.test_type));
   
-  // Tests manquants
   const missingTests = allTests.filter(test => !completedTests.has(test));
 
-  // Tests à refaire (plus vieux que 6 mois)
   const testsToRetake = testResults
     .filter(test => {
       const testDate = new Date(test.created_at);

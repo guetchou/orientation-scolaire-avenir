@@ -9,10 +9,10 @@ import { ForumPost as IForumPost, ForumReply } from "@/types/forum";
 
 interface ForumPostProps {
   post: IForumPost;
-  replies: ForumReply[];
+  replies?: ForumReply[];
 }
 
-export const ForumPost = ({ post, replies }: ForumPostProps) => {
+export const ForumPost = ({ post, replies = [] }: ForumPostProps) => {
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState("");
 

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { 
   Book, 
@@ -11,46 +12,116 @@ import {
   GraduationCap, 
   Search, 
   MessageSquare,
-  PlusCircle
+  PlusCircle,
+  Share2,
+  ThumbsUp
 } from "lucide-react";
-import { ForumDomain, ForumPost } from "@/types/forum";
-
-const domains: ForumDomain[] = [
-  {
-    id: "1",
-    name: "Sciences et Technologies",
-    description: "Discussions sur les filières scientifiques et technologiques",
-    icon: "GraduationCap",
-    post_count: 156
-  },
-  {
-    id: "2",
-    name: "Lettres et Sciences Humaines",
-    description: "Échanges sur les cursus littéraires et sciences humaines",
-    icon: "Book",
-    post_count: 89
-  },
-  {
-    id: "3",
-    name: "Expériences Professionnelles",
-    description: "Partage d'expériences et de stages",
-    icon: "Briefcase",
-    post_count: 234
-  }
-];
+import { useForumData } from "@/hooks/useForumData";
+import { useQuery } from "@tanstack/react-query";
+import { ForumPost } from "@/components/forum/ForumPost";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export const ForumLayout = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDomain, setSelectedDomain] = useState<string>("all");
+  const [activeTab, setActiveTab] = useState<'recent' | 'popular' | 'unanswered'>('recent');
+  const [isNewPostOpen, setIsNewPostOpen] = useState(false);
+  const [newPostTitle, setNewPostTitle] = useState("");
+  const [newPostContent, setNewPostContent] = useState("");
+  const [newPostTags, setNewPostTags] = useState<string[]>([]);
+
+  const { user } = useAuth();
+  const { 
+    domains, 
+    isLoadingDomains,
+    getPosts,
+    createPostMutation
+  } = useForumData();
+
+  // Récupération des posts avec React Query
+  const { 
+    data: posts, 
+    isLoading: isLoadingPosts 
+  } = useQuery({
+    queryKey: ['forumPosts', selectedDomain, activeTab, searchQuery],
+    queryFn: () => getPosts({
+      domain: selectedDomain,
+      sortBy: activeTab,
+      search: searchQuery
+    }),
+    keepPreviousData: true
+  });
+
+  const handleCreatePost = async () => {
+    if (!user) {
+      toast.error("Vous devez être connecté pour créer une discussion");
+      return;
+    }
+
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      toast.error("Veuillez remplir tous les champs");
+      return;
+    }
+
+    try {
+      await createPostMutation.mutateAsync({
+        title: newPostTitle,
+        content: newPostContent,
+        domain: selectedDomain === 'all' ? domains?.[0]?.id || '' : selectedDomain,
+        tags: newPostTags
+      });
+
+      setIsNewPostOpen(false);
+      setNewPostTitle("");
+      setNewPostContent("");
+      setNewPostTags([]);
+    } catch (error) {
+      console.error("Erreur création post:", error);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Forum d'Échanges</h1>
-        <Button>
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Nouvelle Discussion
-        </Button>
+        <Dialog open={isNewPostOpen} onOpenChange={setIsNewPostOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Nouvelle Discussion
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Créer une nouvelle discussion</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Input
+                placeholder="Titre de la discussion"
+                value={newPostTitle}
+                onChange={(e) => setNewPostTitle(e.target.value)}
+              />
+              <Textarea
+                placeholder="Contenu de votre message"
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                className="min-h-[200px]"
+              />
+              <div className="flex gap-2">
+                <Button onClick={handleCreatePost}>
+                  Publier
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setIsNewPostOpen(false)}
+                >
+                  Annuler
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex gap-6">
@@ -79,7 +150,7 @@ export const ForumLayout = () => {
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Tous les sujets
               </Button>
-              {domains.map((domain) => (
+              {domains?.map((domain) => (
                 <Button
                   key={domain.id}
                   variant={selectedDomain === domain.id ? "default" : "ghost"}
@@ -98,44 +169,31 @@ export const ForumLayout = () => {
 
         {/* Contenu principal */}
         <div className="flex-1">
-          <Tabs defaultValue="recent" className="w-full">
+          <Tabs 
+            value={activeTab} 
+            onValueChange={(value) => setActiveTab(value as typeof activeTab)}
+            className="w-full"
+          >
             <TabsList className="mb-4">
               <TabsTrigger value="recent">Récents</TabsTrigger>
               <TabsTrigger value="popular">Populaires</TabsTrigger>
               <TabsTrigger value="unanswered">Sans réponse</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="recent" className="space-y-4">
-              {domains.map((domain) => (
-                <Card key={domain.id} className="cursor-pointer hover:bg-gray-50">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl">{domain.name}</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {domain.description}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">{domain.post_count}</p>
-                        <p className="text-sm text-gray-500">discussions</p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="popular">
-              <p className="text-gray-500 text-center py-8">
-                Les discussions populaires seront affichées ici
-              </p>
-            </TabsContent>
-
-            <TabsContent value="unanswered">
-              <p className="text-gray-500 text-center py-8">
-                Les discussions sans réponse seront affichées ici
-              </p>
+            <TabsContent value={activeTab} className="space-y-4">
+              {isLoadingPosts ? (
+                <div className="text-center py-8">
+                  Chargement des discussions...
+                </div>
+              ) : posts?.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  Aucune discussion trouvée
+                </div>
+              ) : (
+                posts?.map((post) => (
+                  <ForumPost key={post.id} post={post} />
+                ))
+              )}
             </TabsContent>
           </Tabs>
         </div>

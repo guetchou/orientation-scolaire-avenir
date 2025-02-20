@@ -40,6 +40,7 @@ export type Database = {
           status: string | null
           student_id: string | null
           time: string
+          updated_at: string | null
         }
         Insert: {
           conseiller_id?: string | null
@@ -50,6 +51,7 @@ export type Database = {
           status?: string | null
           student_id?: string | null
           time: string
+          updated_at?: string | null
         }
         Update: {
           conseiller_id?: string | null
@@ -60,14 +62,29 @@ export type Database = {
           status?: string | null
           student_id?: string | null
           time?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "appointments_conseiller_id_fkey"
             columns: ["conseiller_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
+          },
+          {
+            foreignKeyName: "appointments_conseiller_id_fkey"
+            columns: ["conseiller_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
           },
           {
             foreignKeyName: "appointments_student_id_fkey"
@@ -111,6 +128,13 @@ export type Database = {
             foreignKeyName: "availabilities_conseiller_id_fkey"
             columns: ["conseiller_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
+          },
+          {
+            foreignKeyName: "availabilities_conseiller_id_fkey"
+            columns: ["conseiller_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -120,20 +144,26 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          icon: string | null
           id: string
           name: string
+          post_count: number | null
         }
         Insert: {
           created_at?: string | null
           description?: string | null
+          icon?: string | null
           id?: string
           name: string
+          post_count?: number | null
         }
         Update: {
           created_at?: string | null
           description?: string | null
+          icon?: string | null
           id?: string
           name?: string
+          post_count?: number | null
         }
         Relationships: []
       }
@@ -173,6 +203,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "forum_replies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
           },
           {
             foreignKeyName: "forum_likes_user_id_fkey"
@@ -222,6 +259,13 @@ export type Database = {
             foreignKeyName: "forum_posts_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
+          },
+          {
+            foreignKeyName: "forum_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -264,6 +308,13 @@ export type Database = {
             foreignKeyName: "forum_replies_author_id_fkey"
             columns: ["author_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
+          },
+          {
+            foreignKeyName: "forum_replies_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -275,6 +326,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      neighborhoods: {
+        Row: {
+          city: string
+          coordinates: number[]
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          city: string
+          coordinates: number[]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string
+          coordinates?: number[]
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -335,6 +419,7 @@ export type Database = {
           answers: Json | null
           created_at: string | null
           id: string
+          progress_score: number | null
           results: Json | null
           test_type: string
           user_id: string | null
@@ -343,6 +428,7 @@ export type Database = {
           answers?: Json | null
           created_at?: string | null
           id?: string
+          progress_score?: number | null
           results?: Json | null
           test_type: string
           user_id?: string | null
@@ -351,11 +437,19 @@ export type Database = {
           answers?: Json | null
           created_at?: string | null
           id?: string
+          progress_score?: number | null
           results?: Json | null
           test_type?: string
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "test_results_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_stats"
+            referencedColumns: ["conseiller_id"]
+          },
           {
             foreignKeyName: "test_results_user_id_fkey"
             columns: ["user_id"]
@@ -367,7 +461,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      dashboard_stats: {
+        Row: {
+          appointments_scheduled: number | null
+          average_progress: number | null
+          conseiller_id: string | null
+          tests_completed: number | null
+          total_students: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

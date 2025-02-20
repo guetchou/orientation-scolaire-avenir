@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeTestResults } from "@/utils/analysisAlgorithms";
@@ -48,18 +47,16 @@ const TestResults = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
-      // Récupérer tous les résultats de tests
       const { data: results, error } = await supabase
-        .from("test_results")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('test_results')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setTestResults(results || []);
+      setTestResults(results as TestResult[]);
 
-      // Analyser les résultats
       const analysisResults = await analyzeTestResults(user.id);
       setAnalysis(analysisResults);
     } catch (error) {

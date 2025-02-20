@@ -1,8 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
-import { TestResult, EmotionalTestResults, LearningStyleResults } from "@/types/test";
-import { Json } from "@/integrations/supabase/types";
+import { TestResult } from "@/types/supabase";
+import { Profile } from "@/types/supabase";
 
-interface UserProfile {
+interface UserProfile extends Profile {
   id: string;
   department: string;
   interests?: string;
@@ -25,25 +25,23 @@ export const analyzeTestResults = async (userId: string): Promise<{
 }> => {
   try {
     const { data: testResults, error: testError } = await supabase
-      .from("test_results")
-      .select("*")
-      .eq("user_id", userId);
+      .from('test_results')
+      .select('*')
+      .eq('user_id', userId);
 
     if (testError) throw testError;
 
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
       .single();
 
     if (profileError) throw profileError;
 
-    const strengths = analyzeStrengths(testResults, profile);
-
-    const recommendations = await generateCareerRecommendations(testResults, profile);
-
-    const suggestedTests = suggestNextTests(testResults);
+    const strengths = analyzeStrengths(testResults as TestResult[], profile as UserProfile);
+    const recommendations = await generateCareerRecommendations(testResults as TestResult[], profile as UserProfile);
+    const suggestedTests = suggestNextTests(testResults as TestResult[]);
 
     return {
       strengths,

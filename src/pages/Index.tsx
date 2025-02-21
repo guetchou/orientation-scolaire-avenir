@@ -1,5 +1,6 @@
 
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { StepsSection } from "@/components/home/StepsSection";
 import { TestsSection } from "@/components/home/TestsSection";
@@ -15,64 +16,67 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Index() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Fond décoratif */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-secondary/5 to-primary/5" />
+      </div>
+
       <Navbar />
-      <div className="container mx-auto px-4 py-8 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <h2 className="text-2xl font-bold">Nos Conseillers Professionnels</h2>
-          <div className="flex gap-8">
-            {/* Avatar homme professionnel */}
-            <div className="text-center">
-              <Avatar showAnimation online showBorder>
-                <AvatarImage 
-                  src="photo-1581092795360-fd1ca04f0952" 
-                  alt="Conseiller professionnel" 
-                />
-                <AvatarFallback>MP</AvatarFallback>
-              </Avatar>
-              <p className="mt-2 text-sm font-medium">Michel Patel</p>
-              <p className="text-sm text-muted-foreground">Conseiller Senior</p>
-            </div>
+      
+      {/* Ajout d'un padding-top pour compenser la navbar fixe */}
+      <main className="pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center gap-4 animate-fade-in">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Nos Conseillers Professionnels
+            </h2>
+            <div className="flex gap-8">
+              <div className="text-center group">
+                <Avatar className="w-20 h-20 ring-2 ring-primary/20 group-hover:ring-primary transition-all duration-300">
+                  <AvatarImage src="/placeholder.svg" alt="Michel Patel" />
+                  <AvatarFallback>MP</AvatarFallback>
+                </Avatar>
+                <p className="mt-2 text-sm font-medium">Michel Patel</p>
+                <p className="text-sm text-muted-foreground">Conseiller Senior</p>
+              </div>
 
-            {/* Avatar femme professionnelle */}
-            <div className="text-center">
-              <Avatar showBorder showAnimation>
-                <AvatarImage 
-                  src="photo-1581091226825-a6a2a5aee158" 
-                  alt="Conseillère professionnelle" 
-                />
-                <AvatarFallback>SC</AvatarFallback>
-              </Avatar>
-              <p className="mt-2 text-sm font-medium">Sophie Claire</p>
-              <p className="text-sm text-muted-foreground">Conseillère Orientation</p>
-            </div>
+              <div className="text-center group">
+                <Avatar className="w-20 h-20 ring-2 ring-primary/20 group-hover:ring-primary transition-all duration-300">
+                  <AvatarImage src="/placeholder.svg" alt="Sophie Claire" />
+                  <AvatarFallback>SC</AvatarFallback>
+                </Avatar>
+                <p className="mt-2 text-sm font-medium">Sophie Claire</p>
+                <p className="text-sm text-muted-foreground">Conseillère Orientation</p>
+              </div>
 
-            {/* Avatar professionnel supplémentaire */}
-            <div className="text-center">
-              <Avatar showBorder>
-                <AvatarImage 
-                  src="photo-1486312338219-ce68d2c6f44d" 
-                  alt="Conseiller expert" 
-                />
-                <AvatarFallback>JM</AvatarFallback>
-              </Avatar>
-              <p className="mt-2 text-sm font-medium">Jean Martin</p>
-              <p className="text-sm text-muted-foreground">Expert Carrière</p>
+              <div className="text-center group">
+                <Avatar className="w-20 h-20 ring-2 ring-primary/20 group-hover:ring-primary transition-all duration-300">
+                  <AvatarImage src="/placeholder.svg" alt="Jean Martin" />
+                  <AvatarFallback>JM</AvatarFallback>
+                </Avatar>
+                <p className="mt-2 text-sm font-medium">Jean Martin</p>
+                <p className="text-sm text-muted-foreground">Expert Carrière</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <HeroSection />
-      <StepsSection />
-      <TestsSection />
-      <StatisticsSection />
-      <TestimonialsSection />
-      <ResourcesSection />
-      <EventsSection />
-      <PartnersSection />
-      <FaqSection />
-      <ContactSection />
-      <ChatBot />
+
+        <HeroSection />
+        <StepsSection />
+        <TestsSection />
+        <StatisticsSection />
+        <TestimonialsSection />
+        <ResourcesSection />
+        <EventsSection />
+        <PartnersSection />
+        <FaqSection />
+        <ContactSection />
+        <ChatBot />
+      </main>
+
+      <Footer />
     </div>
   );
 }

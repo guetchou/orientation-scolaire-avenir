@@ -1,30 +1,23 @@
 
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { TestsSection } from "@/components/home/TestsSection";
 
 export default function Tests() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Navbar />
-      
-      <main className="pt-20 container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">
+      <main className="pt-20">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-bold text-gray-900 text-center mb-4">
             Tests d'Orientation
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Découvrez nos tests d'orientation professionnelle conçus pour vous aider à identifier vos talents et choisir votre voie.
+          <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
+            Découvrez nos tests d'orientation professionnelle scientifiquement validés pour vous aider à mieux vous connaître et à faire les bons choix pour votre avenir.
           </p>
-          
-          {/* Contenu à venir dans la prochaine étape */}
-          <div className="p-8 text-center bg-white rounded-lg shadow">
-            <p className="text-gray-600">
-              Le contenu détaillé des tests sera implémenté dans la prochaine étape.
-            </p>
-          </div>
         </div>
+        <TestsSection />
       </main>
-
       <Footer />
     </div>
   );

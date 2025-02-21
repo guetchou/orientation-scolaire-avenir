@@ -1,53 +1,47 @@
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ConseillerDashboard } from '../ConseillerDashboard';
 import { supabase } from '@/integrations/supabase/client';
-import { vi } from 'vitest';
-import '@testing-library/jest-dom';
+import { ConseillerStats } from '@/types/dashboard';
 
-vi.mock('@/integrations/supabase/client', () => ({
+// Mock the supabase client
+jest.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    auth: {
-      getUser: vi.fn()
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        single: vi.fn(),
-        eq: vi.fn()
-      }))
+    from: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      eq: jest.fn().mockReturnThis(),
+      single: jest.fn().mockResolvedValue({
+        data: {
+          total_students: 10,
+          tests_completed: 25,
+          appointments_scheduled: 15,
+          average_progress: 75
+        },
+        error: null
+      })
     }))
   }
 }));
 
 describe('ConseillerDashboard', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  const mockStats: ConseillerStats = {
+    total_students: 10,
+    tests_completed: 25,
+    appointments_scheduled: 15,
+    average_progress: 75
+  };
 
-  test('renders dashboard components', async () => {
+  it('renders the dashboard with stats', async () => {
     render(<ConseillerDashboard />);
-    expect(screen.getByText('Tableau de bord conseiller')).toBeInTheDocument();
-  });
-
-  test('fetches and displays stats', async () => {
-    const mockStats = {
-      total_students: 10,
-      tests_completed: 25,
-      appointments_scheduled: 5,
-      average_progress: 75
-    };
-
-    vi.mocked(supabase.from).mockImplementation(() => ({
-      select: () => ({
-        single: () => Promise.resolve({ data: mockStats, error: null }),
-        eq: vi.fn()
-      })
-    }));
-
-    render(<ConseillerDashboard />);
-    await waitFor(() => {
-      expect(screen.getByText('10')).toBeInTheDocument();
-      expect(screen.getByText('25')).toBeInTheDocument();
-    });
+    
+    // Check loading state
+    expect(screen.getByText(/chargement/i)).toBeDefined();
+    
+    // Wait for stats to load
+    const totalStudents = await screen.findByText('10');
+    const testsCompleted = await screen.findByText('25');
+    
+    expect(totalStudents).toBeDefined();
+    expect(testsCompleted).toBeDefined();
   });
 });

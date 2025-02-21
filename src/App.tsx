@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Tests from "./pages/Tests";
+import Conseillers from "./pages/Conseillers";
+import Resources from "./pages/Resources";
+import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import RiasecTest from "./pages/RiasecTest";
 import EmotionalTest from "./pages/EmotionalTest";
@@ -22,6 +26,10 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Index />} />
+        <Route path="/tests" element={<Tests />} />
+        <Route path="/conseillers" element={<Conseillers />} />
+        <Route path="/resources" element={<Resources />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<DashboardLayout />}>

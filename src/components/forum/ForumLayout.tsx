@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useForumData } from "@/hooks/useForumData";
 import { useQuery } from "@tanstack/react-query";
-import { ForumPost } from "@/components/forum/ForumPost";
+import { ForumPost, CreateForumPost } from "@/types/forum";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -39,7 +39,6 @@ export const ForumLayout = () => {
     createPostMutation
   } = useForumData();
 
-  // Récupération des posts avec React Query
   const { 
     data: posts, 
     isLoading: isLoadingPosts 
@@ -49,8 +48,7 @@ export const ForumLayout = () => {
       domain: selectedDomain,
       sortBy: activeTab,
       search: searchQuery
-    }),
-    keepPreviousData: true
+    })
   });
 
   const handleCreatePost = async () => {
@@ -65,17 +63,21 @@ export const ForumLayout = () => {
     }
 
     try {
-      await createPostMutation.mutateAsync({
+      const newPost: CreateForumPost = {
         title: newPostTitle,
         content: newPostContent,
+        author_id: user.id,
         domain: selectedDomain === 'all' ? domains?.[0]?.id || '' : selectedDomain,
         tags: newPostTags
-      });
+      };
+
+      await createPostMutation.mutateAsync(newPost);
 
       setIsNewPostOpen(false);
       setNewPostTitle("");
       setNewPostContent("");
       setNewPostTags([]);
+      
     } catch (error) {
       console.error("Erreur création post:", error);
     }

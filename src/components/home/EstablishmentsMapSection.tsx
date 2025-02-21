@@ -25,6 +25,10 @@ export const EstablishmentsMapSection = () => {
   const uniqueCities = [...new Set(mockEstablishments.map(e => e.city))];
   const uniqueTypes = [...new Set(mockEstablishments.map(e => e.type))];
 
+  const handleCityChange = (city: string) => setSelectedCity(city);
+  const handleTypeChange = (type: string) => setSelectedType(type);
+  const handleSearchChange = (search: string) => setSearchTerm(search);
+
   const getMarkerIcon = (type: string) => {
     return "default-marker";
   };
@@ -36,13 +40,13 @@ export const EstablishmentsMapSection = () => {
           <div className="space-y-6">
             <EstablishmentFilters
               selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
               selectedType={selectedType}
-              setSelectedType={setSelectedType}
               searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
               uniqueCities={uniqueCities}
               uniqueTypes={uniqueTypes}
+              onCityChange={handleCityChange}
+              onTypeChange={handleTypeChange}
+              onSearchChange={handleSearchChange}
             />
             <EstablishmentList
               establishments={mockEstablishments}

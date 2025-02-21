@@ -1,50 +1,29 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, BookOpen, Target, Trophy } from "lucide-react";
+import { ConseillerStats } from "@/types/dashboard";
 
-interface StatItem {
-  title: string;
-  value: string;
-  icon: JSX.Element;
+interface DashboardStatsProps {
+  stats: ConseillerStats;
 }
 
-export const DashboardStats = () => {
-  const stats: StatItem[] = [
-    {
-      title: "Tests complétés",
-      value: "4",
-      icon: <Trophy className="h-6 w-6 text-primary" />,
-    },
-    {
-      title: "Ressources consultées",
-      value: "12",
-      icon: <BookOpen className="h-6 w-6 text-primary" />,
-    },
-    {
-      title: "Objectifs fixés",
-      value: "3",
-      icon: <Target className="h-6 w-6 text-primary" />,
-    },
-    {
-      title: "Score moyen",
-      value: "85%",
-      icon: <BarChart className="h-6 w-6 text-primary" />,
-    },
-  ];
-
+export const DashboardStats = ({ stats }: DashboardStatsProps) => {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => (
-        <Card key={stat.title}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-            {stat.icon}
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold">Étudiants Total</h3>
+        <p className="text-3xl font-bold">{stats.total_students}</p>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold">Tests Complétés</h3>
+        <p className="text-3xl font-bold">{stats.tests_completed}</p>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold">RDV Programmés</h3>
+        <p className="text-3xl font-bold">{stats.appointments_scheduled}</p>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold">Progression Moyenne</h3>
+        <p className="text-3xl font-bold">{stats.average_progress}%</p>
+      </div>
     </div>
   );
 };

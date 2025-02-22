@@ -60,11 +60,22 @@ export function ChatBot() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'llama-3.1-sonar-small-128k-online',
           messages: [
             {
               role: 'system',
-              content: "Tu es un assistant spécialisé en orientation scolaire et professionnelle au Congo. Tu dois aider les utilisateurs à trouver leur voie, comprendre les différentes filières d'études et les opportunités professionnelles disponibles. Sois précis, encourageant et adapte tes réponses au contexte congolais."
+              content: `Tu es un assistant spécialisé en orientation scolaire et professionnelle au Congo. 
+              Ton rôle est d'aider les étudiants à :
+              - Comprendre les différentes filières d'études disponibles au Congo
+              - Explorer les opportunités professionnelles dans différents secteurs
+              - Identifier leurs points forts et domaines d'intérêt
+              - Prendre des décisions éclairées concernant leur avenir académique et professionnel
+              - Comprendre le système éducatif congolais et les parcours possibles
+              - Connaître les débouchés des différentes formations
+              
+              Sois précis, encourageant et adapte toujours tes réponses au contexte congolais.
+              Donne des exemples concrets d'établissements et de parcours quand c'est pertinent.
+              Si tu ne connais pas une information spécifique, oriente l'étudiant vers des ressources fiables.`
             },
             {
               role: 'user',
@@ -72,24 +83,18 @@ export function ChatBot() {
             }
           ],
           max_tokens: 1000,
-          temperature: 0.2,
+          temperature: 0.7,
           top_p: 0.9,
-          search_domain_filter: null,
-          return_images: false,
-          return_related_questions: false,
           frequency_penalty: 1,
           presence_penalty: 0
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API Error:', errorData);
         throw new Error("Erreur de communication avec l'API")
       }
 
       const responseData = await response.json()
-      console.log('API Response:', responseData);
       
       const botMessage = {
         content: responseData.choices[0].message.content,
@@ -133,7 +138,7 @@ export function ChatBot() {
             <div className="flex items-center gap-3">
               <Avatar online showBorder>
                 <img
-                  src="https://raw.githubusercontent.com/shadcn/ui/main/apps/www/public/avatars/01.png"
+                  src="/ai-avatar.png"
                   alt="Assistant Avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />
@@ -181,5 +186,5 @@ export function ChatBot() {
         </Card>
       )}
     </>
-  );
+  )
 }

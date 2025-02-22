@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,14 +12,13 @@ import {
   Search, 
   MessageSquare,
   PlusCircle,
-  Share2,
-  ThumbsUp
 } from "lucide-react";
 import { useForumData } from "@/hooks/useForumData";
 import { useQuery } from "@tanstack/react-query";
-import { ForumPost, CreateForumPost } from "@/types/forum";
+import { ForumPost as ForumPostType, CreateForumPost } from "@/types/forum";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { ForumPost } from "./ForumPost";
 
 export const ForumLayout = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,7 +125,6 @@ export const ForumLayout = () => {
       </div>
 
       <div className="flex gap-6">
-        {/* Sidebar avec les domaines */}
         <div className="w-64 space-y-4">
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -169,7 +166,6 @@ export const ForumLayout = () => {
           </Card>
         </div>
 
-        {/* Contenu principal */}
         <div className="flex-1">
           <Tabs 
             value={activeTab} 
@@ -192,7 +188,7 @@ export const ForumLayout = () => {
                   Aucune discussion trouvée
                 </div>
               ) : (
-                posts?.map((post) => (
+                posts?.map((post: ForumPostType) => (
                   <ForumPost key={post.id} post={post} />
                 ))
               )}

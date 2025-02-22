@@ -48,3 +48,41 @@ export const analyzeEmotionalIntelligence = (answers: number[]): EmotionalTestRe
 
   return results;
 };
+
+export const analyzeTestResults = async (userId: string) => {
+  // Fonction d'analyse globale des résultats
+  try {
+    // Simuler quelques résultats d'analyse
+    return {
+      strengths: [
+        "Forte capacité d'analyse",
+        "Bon sens de l'organisation",
+        "Communication efficace",
+        "Adaptabilité"
+      ],
+      recommendations: [
+        {
+          field: "Sciences de l'ingénieur",
+          score: 8.5,
+          reason: "Vos compétences analytiques et votre capacité de résolution de problèmes correspondent bien à ce domaine.",
+          matchingProfiles: 150
+        },
+        {
+          field: "Gestion de projet",
+          score: 7.8,
+          reason: "Votre sens de l'organisation et vos compétences en communication sont des atouts majeurs.",
+          matchingProfiles: 120
+        },
+        {
+          field: "Communication",
+          score: 7.2,
+          reason: "Vos compétences interpersonnelles et votre adaptabilité sont très valorisées dans ce domaine.",
+          matchingProfiles: 90
+        }
+      ]
+    };
+  } catch (error) {
+    console.error("Erreur lors de l'analyse des résultats:", error);
+    throw error;
+  }
+};

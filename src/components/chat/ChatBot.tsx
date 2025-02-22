@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 import { Card } from "@/components/ui/card"
 import { Avatar } from "@/components/ui/avatar"
+import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface Message {
   content: string
@@ -136,12 +136,12 @@ export function ChatBot() {
         <Card className="fixed bottom-4 right-4 w-[400px] h-[600px] shadow-2xl rounded-2xl flex flex-col bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-3">
-              <Avatar online showBorder>
-                <img
+              <Avatar online showBorder showAnimation pulseAnimation>
+                <AvatarImage
                   src="/ai-avatar.png"
                   alt="Assistant Avatar"
-                  className="w-10 h-10 rounded-full object-cover"
                 />
+                <AvatarFallback>AI</AvatarFallback>
               </Avatar>
               <div>
                 <h3 className="font-semibold">Assistant d'orientation</h3>

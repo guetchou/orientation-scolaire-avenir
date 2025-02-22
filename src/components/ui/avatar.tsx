@@ -13,8 +13,9 @@ const Avatar = React.forwardRef<
     online?: boolean
     showBorder?: boolean
     showAnimation?: boolean
+    pulseAnimation?: boolean
   }
->(({ className, online, showBorder = false, showAnimation = false, ...props }, ref) => (
+>(({ className, online, showBorder = false, showAnimation = false, pulseAnimation = false, ...props }, ref) => (
   <AvatarContainer 
     className="relative inline-block"
     animate={showAnimation ? {
@@ -45,12 +46,15 @@ const Avatar = React.forwardRef<
           online ? "bg-green-500" : "bg-gray-400"
         )}
         initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 20
-        }}
+        animate={pulseAnimation && online ? {
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.8, 1]
+        } : { scale: 1 }}
+        transition={pulseAnimation ? {
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        } : undefined}
       />
     )}
   </AvatarContainer>

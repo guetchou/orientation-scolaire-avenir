@@ -1,47 +1,90 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 
-      ${isScrolled ? "bg-white/95 backdrop-blur-md shadow-md" : "bg-transparent"}
+      ${isScrolled 
+        ? "bg-white/95 backdrop-blur-md shadow-md" 
+        : "bg-gradient-to-r from-primary/5 to-secondary/5 backdrop-blur-sm"
+      }
     `}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <span className={`font-heading text-2xl font-bold ${isScrolled ? "text-primary" : "text-primary"}`}>
+            <span className={`font-heading text-2xl font-bold 
+              ${isScrolled ? "text-primary" : "text-primary"}
+              transition-all duration-300
+            `}>
               Orientation Pro Congo
             </span>
           </Link>
 
           {/* Navigation Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/tests" className={`hover:text-primary transition-colors ${isScrolled ? "text-gray-700" : "text-gray-800"}`}>
+            <Link 
+              to="/tests" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/tests") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
               Tests
             </Link>
-            <Link to="/conseillers" className={`hover:text-primary transition-colors ${isScrolled ? "text-gray-700" : "text-gray-800"}`}>
+            <Link 
+              to="/conseillers" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/conseillers") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
               Conseillers
             </Link>
-            <Link to="/resources" className={`hover:text-primary transition-colors ${isScrolled ? "text-gray-700" : "text-gray-800"}`}>
+            <Link 
+              to="/resources" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/resources") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
               Ressources
             </Link>
-            <Link to="/contact" className={`hover:text-primary transition-colors ${isScrolled ? "text-gray-700" : "text-gray-800"}`}>
+            <Link 
+              to="/contact" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/contact") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
               Contact
             </Link>
           </div>
@@ -49,10 +92,10 @@ export const Navbar = () => {
           {/* Boutons Auth Desktop */}
           <div className="hidden md:flex items-center gap-4">
             <Link to="/login">
-              <Button variant="outline">Connexion</Button>
+              <Button variant="outline" className="font-medium">Connexion</Button>
             </Link>
             <Link to="/register">
-              <Button>S'inscrire</Button>
+              <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 font-medium">S'inscrire</Button>
             </Link>
           </div>
 
@@ -76,28 +119,28 @@ export const Navbar = () => {
           <div className="container mx-auto px-4 py-4 space-y-4">
             <Link 
               to="/tests" 
-              className="block py-2 hover:text-primary transition-colors"
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/tests") ? "text-primary font-medium" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tests
             </Link>
             <Link 
               to="/conseillers" 
-              className="block py-2 hover:text-primary transition-colors"
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/conseillers") ? "text-primary font-medium" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Conseillers
             </Link>
             <Link 
               to="/resources" 
-              className="block py-2 hover:text-primary transition-colors"
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/resources") ? "text-primary font-medium" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Ressources
             </Link>
             <Link 
               to="/contact" 
-              className="block py-2 hover:text-primary transition-colors"
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/contact") ? "text-primary font-medium" : ""}`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Contact
@@ -107,7 +150,7 @@ export const Navbar = () => {
                 <Button variant="outline" className="w-full">Connexion</Button>
               </Link>
               <Link to="/register" className="block">
-                <Button className="w-full">S'inscrire</Button>
+                <Button className="w-full bg-gradient-to-r from-primary to-primary/80">S'inscrire</Button>
               </Link>
             </div>
           </div>

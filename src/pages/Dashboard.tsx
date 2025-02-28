@@ -9,6 +9,7 @@ import { ConseillerStats } from "@/types/dashboard";
 import { RecentTests } from "@/components/dashboard/RecentTests";
 import { Goals } from "@/components/dashboard/Goals";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Book, FileBarChart, GraduationCap, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";

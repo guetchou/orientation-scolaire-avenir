@@ -1,84 +1,193 @@
 
-import { useState, useEffect } from "react";
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { StudentProgress } from "@/types/dashboard";
+import { Search } from "lucide-react";
 
-export const StudentList = () => {
-  const [students, setStudents] = useState<StudentProgress[]>([]);
+const mockStudents: StudentProgress[] = [
+  {
+    id: "1",
+    name: "Jean Batchi",
+    avatar: "/placeholder.svg",
+    progress: 85,
+    lastActive: "2023-09-12",
+    testsCompleted: 4,
+    status: "active"
+  },
+  {
+    id: "2",
+    name: "Marie Doukaga",
+    avatar: "/placeholder.svg",
+    progress: 65,
+    lastActive: "2023-09-10",
+    testsCompleted: 3,
+    status: "active"
+  },
+  {
+    id: "3",
+    name: "Christian Mouamba",
+    avatar: "/placeholder.svg",
+    progress: 42,
+    lastActive: "2023-09-05",
+    testsCompleted: 2,
+    status: "active"
+  },
+  {
+    id: "4",
+    name: "Sophie Ndinga",
+    avatar: "/placeholder.svg",
+    progress: 90,
+    lastActive: "2023-09-11",
+    testsCompleted: 4,
+    status: "active"
+  },
+  {
+    id: "5",
+    name: "Pascal Kassa",
+    avatar: "/placeholder.svg",
+    progress: 20,
+    lastActive: "2023-08-28",
+    testsCompleted: 1,
+    status: "inactive"
+  },
+  {
+    id: "6",
+    name: "Astride Mampouya",
+    avatar: "/placeholder.svg",
+    progress: 60,
+    lastActive: "2023-09-08",
+    testsCompleted: 3,
+    status: "active"
+  },
+  {
+    id: "7",
+    name: "Michel Moussounda",
+    avatar: "/placeholder.svg",
+    progress: 15,
+    lastActive: "2023-08-20",
+    testsCompleted: 1,
+    status: "onHold"
+  },
+  {
+    id: "8",
+    name: "Clarisse Mavoungou",
+    avatar: "/placeholder.svg",
+    progress: 75,
+    lastActive: "2023-09-09",
+    testsCompleted: 3,
+    status: "active"
+  }
+];
+
+export function StudentList() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive' | 'onHold'>('all');
+  
+  const filteredStudents = mockStudents.filter((student) => {
+    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === 'all' || student.status === selectedStatus;
+    return matchesSearch && matchesStatus;
+  });
 
-  useEffect(() => {
-    // Simuler le chargement des données
-    const mockData: StudentProgress[] = [
-      {
-        student_id: "1",
-        student_name: "Alice Martin",
-        completed_tests: 3,
-        last_test_date: "2024-03-15",
-        progress_score: 75,
-        next_appointment: "2024-03-20"
-      },
-      {
-        student_id: "2",
-        student_name: "Thomas Dubois",
-        completed_tests: 2,
-        last_test_date: "2024-03-14",
-        progress_score: 60,
-        next_appointment: "2024-03-22"
-      }
-    ];
+  const getStatusBadge = (status: 'active' | 'inactive' | 'onHold') => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-500">Actif</Badge>;
+      case 'inactive':
+        return <Badge className="bg-gray-500">Inactif</Badge>;
+      case 'onHold':
+        return <Badge className="bg-yellow-500">En pause</Badge>;
+    }
+  };
 
-    setStudents(mockData);
-  }, []);
-
-  const filteredStudents = students.filter(student =>
-    student.student_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR').format(date);
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Liste des Étudiants</CardTitle>
-        <Input
-          placeholder="Rechercher un étudiant..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+        <CardTitle>Liste des étudiants</CardTitle>
+        <div className="flex items-center gap-4 mt-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Rechercher un étudiant..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <select
+            className="border rounded-md p-2 text-sm"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value as any)}
+          >
+            <option value="all">Tous les statuts</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+            <option value="onHold">En pause</option>
+          </select>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {filteredStudents.map((student) => (
-            <Card key={student.student_id}>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium">{student.student_name}</h3>
-                    <p className="text-sm text-gray-500">
-                      Tests complétés : {student.completed_tests}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Dernier test : {new Date(student.last_test_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      Progression : {student.progress_score}%
-                    </p>
-                    {student.next_appointment && (
-                      <p className="text-sm text-primary">
-                        Prochain RDV : {new Date(student.next_appointment).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Étudiant</TableHead>
+              <TableHead>Progression</TableHead>
+              <TableHead>Tests</TableHead>
+              <TableHead>Dernière activité</TableHead>
+              <TableHead>Statut</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student) => (
+                <TableRow key={student.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage src={student.avatar} alt={student.name} />
+                        <AvatarFallback>{student.name.substring(0, 2)}</AvatarFallback>
+                      </Avatar>
+                      <div className="font-medium">{student.name}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="w-full flex items-center gap-2">
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${
+                            student.progress > 66 ? 'bg-green-500' : 
+                            student.progress > 33 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
+                          style={{ width: `${student.progress}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-medium">{student.progress}%</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{student.testsCompleted}</TableCell>
+                  <TableCell>{formatDate(student.lastActive)}</TableCell>
+                  <TableCell>{getStatusBadge(student.status)}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-4">
+                  Aucun étudiant trouvé
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
-};
+}

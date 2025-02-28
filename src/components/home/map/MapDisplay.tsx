@@ -1,82 +1,64 @@
 
-import { useEffect, useRef } from "react";
-import mapboxgl, { LngLatLike } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import { Neighborhood } from "../types/establishments";
+import { useEffect, useRef } from 'react';
+import { Card } from '@/components/ui/card';
+import { Establishment, Neighborhood } from '@/types/establishments';
+import { initializeMap, addEstablishmentsToMap, flyToEstablishment } from './mapUtils';
 
 interface MapDisplayProps {
-  neighborhoods: Neighborhood[];
-  getMarkerIcon: (type?: string) => string;
+  establishments: Establishment[];
+  selectedEstablishment: Establishment | null;
 }
 
-export const MapDisplay = ({ neighborhoods, getMarkerIcon }: MapDisplayProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+export function MapDisplay({ establishments, selectedEstablishment }: MapDisplayProps) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<any>({});
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainerRef.current) return;
 
-    console.log("Initializing map...");
-    
-    const center: LngLatLike = [15.2832, -4.2699];
-
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZ2Vzc25ndWllIiwiYSI6ImNscnlwbWVzZjE2dDQya3BjOGxqZnJtbXIifQ.2pKV0_5V6KhqHPUY-rMYBw';
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v11",
-      center: center,
-      zoom: 12,
-    });
-
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      "top-right"
-    );
-
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    neighborhoods.forEach((neighborhood) => {
-      const coordinates: LngLatLike = neighborhood.coordinates || [15.2832, -4.2699];
+    // Initialize map only once
+    if (!mapRef.current) {
+      // Default to Congo's coordinates
+      const defaultCoordinates: [number, number] = [15.2832, -4.2634]; // Brazzaville, Congo
+      const defaultZoom = 11;
       
-      const markerEl = document.createElement("div");
-      markerEl.className = "custom-marker";
-      markerEl.innerHTML = `
-        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white transform hover:scale-110 transition-transform">
-          ${getMarkerIcon(neighborhood.type)}
-        </div>
-      `;
-
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div class="p-2">
-          <h3 class="font-semibold text-lg">${neighborhood.name}</h3>
-          <p class="text-sm text-gray-600">${neighborhood.city}</p>
-          <p class="text-sm mt-2">${neighborhood.description}</p>
-        </div>`
-      );
-
-      const marker = new mapboxgl.Marker(markerEl)
-        .setLngLat(coordinates)
-        .setPopup(popup)
-        .addTo(map.current!);
-
-      markersRef.current.push(marker);
-    });
+      mapRef.current = initializeMap(mapContainerRef.current, defaultCoordinates, defaultZoom);
+      
+      // Add establishments when map is loaded
+      mapRef.current.on('load', () => {
+        markersRef.current = addEstablishmentsToMap(mapRef.current, establishments);
+      });
+    }
 
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      // Cleanup if needed
     };
-  }, [neighborhoods, getMarkerIcon]);
+  }, []);
+
+  // Update markers when establishments change
+  useEffect(() => {
+    if (mapRef.current && establishments.length > 0) {
+      // Clear existing markers
+      Object.values(markersRef.current).forEach((marker: any) => {
+        marker.remove();
+      });
+      
+      // Add new markers
+      markersRef.current = addEstablishmentsToMap(mapRef.current, establishments);
+    }
+  }, [establishments]);
+
+  // Fly to selected establishment
+  useEffect(() => {
+    if (mapRef.current && selectedEstablishment) {
+      flyToEstablishment(mapRef.current, selectedEstablishment);
+    }
+  }, [selectedEstablishment]);
 
   return (
-    <div className="relative rounded-lg overflow-hidden shadow-lg mb-8">
-      <div ref={mapContainer} className="w-full h-[600px]" />
-    </div>
+    <Card className="h-[600px] overflow-hidden">
+      <div ref={mapContainerRef} className="w-full h-full" />
+    </Card>
   );
-};
+}

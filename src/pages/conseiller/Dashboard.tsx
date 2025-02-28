@@ -9,37 +9,17 @@ import { AppointmentManagement } from "@/components/conseiller/AppointmentManage
 import { AvailabilityManager } from "@/components/dashboard/AvailabilityManager";
 import { StudentList } from "@/components/dashboard/StudentList";
 import { Separator } from "@/components/ui/separator";
-import { DashboardTabsStats } from "@/types/dashboard";
+import { ConseillerStats } from "@/types/dashboard";
 
 export default function ConseillierDashboardPage() {
   const [activeTab, setActiveTab] = useState("overview");
   
   // Données pour les statistiques
-  const dashboardStats: DashboardTabsStats = {
-    appointments: {
-      total: 148,
-      completed: 132,
-      upcoming: 16,
-      growth: 12,
-    },
-    students: {
-      total: 86,
-      active: 75,
-      new: 8,
-      growth: 10,
-    },
-    revenue: {
-      total: 1250000,
-      thisMonth: 280000,
-      lastMonth: 240000,
-      growth: 16.7,
-    },
-    hours: {
-      total: 264,
-      thisMonth: 48,
-      lastMonth: 42,
-      growth: 14.3,
-    }
+  const dashboardStats: ConseillerStats = {
+    total_students: 86,
+    tests_completed: 148,
+    appointments_scheduled: 132,
+    average_progress: 65
   };
 
   return (

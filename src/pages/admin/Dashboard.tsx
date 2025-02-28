@@ -5,37 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { Separator } from "@/components/ui/separator";
-import { DashboardTabsStats } from "@/types/dashboard";
+import { DashboardTabsStats, ConseillerStats } from "@/types/dashboard";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Données pour les statistiques
-  const dashboardStats: DashboardTabsStats = {
-    users: {
-      total: 1256,
-      active: 1050,
-      new: 32,
-      growth: 12,
-    },
-    tests: {
-      total: 3487,
-      completed: 2980,
-      inProgress: 507,
-      growth: 8,
-    },
-    appointments: {
-      total: 987,
-      completed: 856,
-      upcoming: 131,
-      growth: 5,
-    },
-    revenue: {
-      total: 8750000,
-      thisMonth: 1250000,
-      lastMonth: 1150000,
-      growth: 8.7,
-    }
+  const dashboardStats: ConseillerStats = {
+    total_students: 1256,
+    tests_completed: 3487,
+    appointments_scheduled: 987,
+    average_progress: 65
   };
 
   return (

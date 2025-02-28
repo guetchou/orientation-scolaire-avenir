@@ -44,3 +44,38 @@ export interface DashboardTabsStats {
     growth: number;
   };
 }
+
+export interface AvailabilitySlot {
+  id: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
+}
+
+export interface StudentProgress {
+  id: string;
+  name: string;
+  avatar?: string;
+  progress: number;
+  lastActive: string;
+  testsCompleted: number;
+  status: 'active' | 'inactive' | 'onHold';
+}
+
+export interface LearningStyleResults {
+  visual: number;
+  auditory: number;
+  kinesthetic: number;
+  primary: string;
+  secondary: string;
+}
+
+export interface EmotionalTestResults {
+  selfAwareness: number;
+  selfRegulation: number;
+  motivation: number;
+  empathy: number;
+  socialSkills: number;
+  overallScore: number;
+}

@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
-import { Establishment, Neighborhood } from '@/types/establishments';
+import { Establishment } from '@/types/establishments';
 import { initializeMap, addEstablishmentsToMap, flyToEstablishment } from './mapUtils';
 
 interface MapDisplayProps {

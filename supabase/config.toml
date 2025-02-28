@@ -1,1 +1,57 @@
+
 project_id = "azikiiztfejmywbhtuak"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost"
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000", "https://3c7ee4eb-63ae-4ed8-8d9d-9d1710f7c25f.lovableproject.com"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enabled = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[auth.sms]
+enabled = false
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+url = ""
+
+[functions]
+enabled = true
+[functions.payment-webhook]
+verify_jwt = false
+[functions.mtn-momo]
+verify_jwt = false
+[functions.airtel-money]
+verify_jwt = false

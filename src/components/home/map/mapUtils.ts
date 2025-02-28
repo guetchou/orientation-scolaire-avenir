@@ -1,21 +1,84 @@
 
-export const getMarkerIcon = (type?: string) => {
-  switch (type) {
+import mapboxgl from 'mapbox-gl';
+import { Establishment } from '@/types/establishments';
+
+// Initialiser la carte
+export const initializeMap = (container: HTMLElement, center: [number, number], zoom: number) => {
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZGV2Y29uZ28iLCJhIjoiY2xwczk2Z3U1MDJ0eTJqbXo4OTcyeGwwMCJ9.yxO9QcJzBfHr3F_E3fXD7g';
+  
+  const map = new mapboxgl.Map({
+    container,
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center,
+    zoom
+  });
+  
+  // Ajouter les contrôles de navigation
+  map.addControl(new mapboxgl.NavigationControl());
+  
+  return map;
+};
+
+// Déterminer l'icône en fonction du type d'établissement
+export const getMarkerIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case 'université':
     case 'university':
-      return '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14l9-5-9-5-9 5 9 5z" fill="currentColor"/></svg>';
+      return 'https://img.icons8.com/color/48/000000/university.png';
+    case 'école':
+    case 'ecole':
     case 'school':
-      return '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+      return 'https://img.icons8.com/color/48/000000/school.png';
+    case 'institut':
+    case 'institute':
+      return 'https://img.icons8.com/color/48/000000/student-center.png';
+    case 'centre de formation':
+    case 'training center':
+      return 'https://img.icons8.com/color/48/000000/training.png';
     default:
-      return '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+      return 'https://img.icons8.com/color/48/000000/marker.png';
   }
 };
 
-export const getCityCoordinates = (city: string): [number, number] => {
-  const cityCoordinates: { [key: string]: [number, number] } = {
-    "Brazzaville": [15.2832, -4.2699],
-    "Pointe-Noire": [11.8635, -4.7761],
-    "Dolisie": [12.6666, -4.2],
-  };
+// Ajouter les établissements à la carte
+export const addEstablishmentsToMap = (map: mapboxgl.Map, establishments: Establishment[]) => {
+  const markers: { [id: string]: mapboxgl.Marker } = {};
+  
+  establishments.forEach(establishment => {
+    // Créer un élément DOM pour le marqueur personnalisé
+    const el = document.createElement('div');
+    el.className = 'marker';
+    el.style.backgroundImage = `url(${getMarkerIcon(establishment.type)})`;
+    el.style.width = '30px';
+    el.style.height = '30px';
+    el.style.backgroundSize = '100%';
+    
+    // Créer un popup avec les infos
+    const popup = new mapboxgl.Popup({ offset: 25 })
+      .setHTML(`
+        <h3 style="font-weight: bold;">${establishment.name}</h3>
+        <p>${establishment.address}, ${establishment.city}</p>
+        <p style="color: #666; font-size: 0.9em;">${establishment.type}</p>
+      `);
+    
+    // Ajouter le marqueur à la carte
+    const marker = new mapboxgl.Marker(el)
+      .setLngLat(establishment.coordinates)
+      .setPopup(popup)
+      .addTo(map);
+    
+    markers[establishment.id] = marker;
+  });
+  
+  return markers;
+};
 
-  return cityCoordinates[city] || [15.2832, -4.2699];
+// Centrer la carte sur un établissement sélectionné
+export const flyToEstablishment = (map: mapboxgl.Map, establishment: Establishment) => {
+  map.flyTo({
+    center: establishment.coordinates,
+    zoom: 15,
+    essential: true,
+    duration: 1000
+  });
 };

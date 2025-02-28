@@ -19,21 +19,21 @@ export default function Resources() {
     guides: [
       {
         title: "Guide des études supérieures au Congo",
-        description: "Un guide complet pour comprendre le système éducatif supérieur congolais",
+        description: "Ce guide complet vous aide à naviguer dans le système éducatif supérieur congolais. Découvrez les différentes universités, instituts et écoles supérieures, leurs conditions d'admission, frais de scolarité et perspectives de carrière. Inclut également des conseils sur les bourses disponibles et les procédures d'inscription.",
         type: "PDF",
         url: "#",
         icon: <FileText className="h-10 w-10 text-primary" />,
       },
       {
         title: "Choisir son orientation professionnelle",
-        description: "Méthodes et conseils pour définir son projet professionnel",
+        description: "Un guide pratique pour définir votre projet professionnel en fonction de vos aptitudes, intérêts et du marché de l'emploi congolais. Apprenez à identifier vos forces, à explorer les différents secteurs professionnels et à élaborer un plan d'action pour atteindre vos objectifs de carrière.",
         type: "PDF",
         url: "#",
         icon: <FileText className="h-10 w-10 text-primary" />,
       },
       {
         title: "Les métiers d'avenir au Congo",
-        description: "Découvrez les secteurs porteurs et les compétences recherchées",
+        description: "Analyse approfondie des secteurs porteurs et des compétences recherchées dans l'économie congolaise. Ce guide détaille les métiers en croissance dans les domaines du numérique, de l'énergie, de l'agriculture, du tourisme et des services, avec des témoignages de professionnels et des conseils pour se former.",
         type: "PDF",
         url: "#",
         icon: <FileText className="h-10 w-10 text-primary" />,
@@ -42,21 +42,21 @@ export default function Resources() {
     videos: [
       {
         title: "Témoignages d'étudiants",
-        description: "Des étudiants congolais partagent leur parcours académique",
+        description: "Série de vidéos où des étudiants congolais de différentes filières partagent leur parcours académique, leurs difficultés, leurs réussites et leurs conseils pour les nouveaux étudiants. Une ressource précieuse pour comprendre la réalité des études supérieures.",
         type: "Vidéo",
         url: "#",
         icon: <Video className="h-10 w-10 text-primary" />,
       },
       {
         title: "Interview avec des professionnels",
-        description: "Des professionnels parlent de leur métier et donnent des conseils",
+        description: "Collection d'entretiens avec des professionnels congolais établis dans divers secteurs. Ils partagent leurs parcours, les défis de leurs métiers, et offrent des conseils précieux pour les jeunes qui souhaitent suivre leurs traces.",
         type: "Vidéo",
         url: "#",
         icon: <Video className="h-10 w-10 text-primary" />,
       },
       {
         title: "Comment réussir son orientation",
-        description: "Conseils pratiques pour faire les bons choix d'études",
+        description: "Webinaire animé par des experts en orientation professionnelle qui présentent les méthodologies et outils pour faire des choix éclairés. Apprenez à évaluer vos compétences, à rechercher efficacement des informations sur les métiers et à prendre des décisions alignées avec vos aspirations.",
         type: "Vidéo",
         url: "#",
         icon: <Video className="h-10 w-10 text-primary" />,
@@ -65,21 +65,21 @@ export default function Resources() {
     articles: [
       {
         title: "Les compétences du 21ème siècle",
-        description: "Quelles sont les compétences essentielles pour réussir",
+        description: "Cet article analyse les compétences essentielles pour réussir dans l'économie mondiale et locale actuelle. Focus sur la pensée critique, la créativité, la communication, la collaboration, la littératie numérique et l'apprentissage continu, avec des conseils pratiques pour les développer.",
         type: "Article",
         url: "#",
         icon: <BookOpen className="h-10 w-10 text-primary" />,
       },
       {
         title: "L'entrepreneuriat au Congo",
-        description: "Opportunités et défis pour les jeunes entrepreneurs",
+        description: "Panorama des opportunités et défis pour les entrepreneurs au Congo. L'article couvre l'écosystème entrepreneurial local, les secteurs prometteurs, les sources de financement disponibles, les incubateurs et accélérateurs, ainsi que des témoignages de réussite d'entrepreneurs locaux.",
         type: "Article",
         url: "#",
         icon: <BookOpen className="h-10 w-10 text-primary" />,
       },
       {
         title: "Les bourses d'études disponibles",
-        description: "Guide des bourses nationales et internationales",
+        description: "Guide complet des bourses nationales et internationales accessibles aux étudiants congolais. L'article détaille les critères d'éligibilité, les processus de candidature, les montants, et propose des conseils pour maximiser vos chances d'obtention de financement pour vos études.",
         type: "Article",
         url: "#",
         icon: <BookOpen className="h-10 w-10 text-primary" />,
@@ -88,21 +88,21 @@ export default function Resources() {
     tests: [
       {
         title: "Test RIASEC complet",
-        description: "Découvrez votre profil d'intérêts professionnels",
+        description: "Découvrez votre profil d'intérêts professionnels selon la méthode RIASEC (Réaliste, Investigateur, Artistique, Social, Entreprenant, Conventionnel). Ce test scientifiquement validé vous aide à identifier les domaines professionnels qui correspondent le mieux à votre personnalité.",
         type: "Test",
         url: "/test-riasec",
         icon: <FileText className="h-10 w-10 text-primary" />,
       },
       {
         title: "Test d'intelligence émotionnelle",
-        description: "Évaluez vos compétences émotionnelles",
+        description: "Évaluez vos compétences émotionnelles à travers cinq dimensions: conscience de soi, maîtrise de soi, motivation, empathie et aptitudes sociales. Découvrez vos forces et points d'amélioration pour développer votre intelligence émotionnelle, un facteur clé de réussite professionnelle.",
         type: "Test",
         url: "/test-emotional",
         icon: <FileText className="h-10 w-10 text-primary" />,
       },
       {
         title: "Test des intelligences multiples",
-        description: "Identifiez vos types d'intelligence dominants",
+        description: "Basé sur la théorie d'Howard Gardner, ce test vous permet d'identifier vos types d'intelligence dominants parmi les huit intelligences: linguistique, logico-mathématique, spatiale, musicale, corporelle-kinesthésique, interpersonnelle, intrapersonnelle et naturaliste.",
         type: "Test",
         url: "/test-multiple",
         icon: <FileText className="h-10 w-10 text-primary" />,

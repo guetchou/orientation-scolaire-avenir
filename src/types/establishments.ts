@@ -17,6 +17,7 @@ export interface Neighborhood {
   id: string;
   name: string;
   city: string;
+  type?: string;
   description?: string;
   coordinates: [number, number];
 }

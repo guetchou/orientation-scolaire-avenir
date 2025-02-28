@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, UserCircle2, BookOpen, GraduationCap, Building2, UserCog } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -27,6 +30,59 @@ const Onboarding = () => {
     education: "",
   });
 
+  useEffect(() => {
+    // Vérifier si l'utilisateur a déjà un profil
+    const checkProfile = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        // Si le profil a déjà un département (rôle) défini et un statut actif, rediriger
+        if (data && data.department && data.status === 'active') {
+          redirectBasedOnRole(data.department);
+        } else if (data) {
+          // Pré-remplir les données si l'utilisateur a déjà un profil mais pas complet
+          setFormData({
+            role: data.department || "",
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            phone: data.phone || "",
+            bio: data.bio || "",
+            interests: data.interests || "",
+            experience: data.experience || "",
+            education: data.education || "",
+          });
+        }
+      } catch (err) {
+        console.error("Erreur lors de la vérification du profil:", err);
+      }
+    };
+
+    checkProfile();
+  }, [user, navigate]);
+
+  const redirectBasedOnRole = (role: string) => {
+    switch (role) {
+      case "admin":
+        navigate("/admin/dashboard");
+        break;
+      case "conseiller":
+        navigate("/conseiller/dashboard");
+        break;
+      case "etudiant":
+      default:
+        navigate("/dashboard");
+        break;
+    }
+  };
+
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -35,17 +91,15 @@ const Onboarding = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Vous devez être connecté pour compléter votre profil");
+      navigate("/login");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error("Utilisateur non connecté");
-        navigate("/login");
-        return;
-      }
-
       const { error: updateError } = await supabase
         .from('profiles')
         .upsert({
@@ -70,17 +124,7 @@ const Onboarding = () => {
       }
 
       toast.success("Profil complété avec succès !");
-      
-      switch (formData.role) {
-        case "admin":
-          navigate("/admin/dashboard");
-          break;
-        case "conseiller":
-          navigate("/conseiller/dashboard");
-          break;
-        default:
-          navigate("/dashboard");
-      }
+      redirectBasedOnRole(formData.role);
     } catch (error) {
       console.error("Erreur:", error);
       toast.error("Une erreur est survenue");
@@ -89,22 +133,71 @@ const Onboarding = () => {
     }
   };
 
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case "admin":
+        return <UserCog className="h-8 w-8 text-purple-600" />;
+      case "conseiller":
+        return <BookOpen className="h-8 w-8 text-blue-600" />;
+      case "etudiant":
+        return <GraduationCap className="h-8 w-8 text-green-600" />;
+      case "entreprise":
+        return <Building2 className="h-8 w-8 text-orange-600" />;
+      default:
+        return <UserCircle2 className="h-8 w-8 text-gray-600" />;
+    }
+  };
+
   const steps = [
     {
-      title: "Rôle",
+      title: "Choix du profil",
       content: (
-        <div className="space-y-4">
-          <Label>Quel est votre rôle ?</Label>
-          <Select value={formData.role} onValueChange={(value) => updateFormData("role", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionnez votre rôle" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="etudiant">Étudiant</SelectItem>
-              <SelectItem value="conseiller">Conseiller d'orientation</SelectItem>
-              <SelectItem value="admin">Administrateur</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="space-y-6">
+          <p className="text-center text-gray-600 mb-4">
+            Veuillez sélectionner votre type de profil pour personnaliser votre expérience
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {["etudiant", "conseiller", "admin", "entreprise"].map((role) => (
+              <div 
+                key={role}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  formData.role === role 
+                    ? 'border-primary bg-primary/5 shadow-md' 
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+                onClick={() => updateFormData("role", role)}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-gray-100 p-3 rounded-full">
+                    {getRoleIcon(role)}
+                  </div>
+                  <div>
+                    <h3 className="font-medium capitalize">{role}</h3>
+                    <p className="text-sm text-gray-500">
+                      {role === "etudiant" && "Accès aux tests et conseillers"}
+                      {role === "conseiller" && "Accompagnement des étudiants"}
+                      {role === "admin" && "Gestion de la plateforme"}
+                      {role === "entreprise" && "Recrutement et partenariats"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {formData.role && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <p className="text-sm text-blue-700">
+                <strong>Vous avez choisi:</strong> <Badge>{formData.role}</Badge>
+                <br />
+                {formData.role === "etudiant" && "En tant qu'étudiant, vous pourrez passer des tests d'orientation, consulter des ressources et prendre rendez-vous avec des conseillers."}
+                {formData.role === "conseiller" && "En tant que conseiller, vous pourrez accompagner les étudiants, gérer vos rendez-vous et vos disponibilités."}
+                {formData.role === "admin" && "En tant qu'administrateur, vous aurez accès à toutes les fonctionnalités de gestion de la plateforme."}
+                {formData.role === "entreprise" && "En tant qu'entreprise, vous pourrez publier des offres et entrer en contact avec des talents."}
+              </p>
+            </div>
+          )}
         </div>
       )
     },
@@ -209,20 +302,50 @@ const Onboarding = () => {
     }
   };
 
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="background-pattern"></div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-lg"
       >
-        <Card>
-          <CardHeader>
+        <Card className="shadow-xl">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg border-b">
             <CardTitle className="text-2xl text-center">
               {steps[step - 1].title}
             </CardTitle>
+            
+            <div className="w-full flex justify-between items-center mt-6">
+              {[1, 2, 3, 4].map((s) => (
+                <div key={s} className="flex items-center">
+                  <div 
+                    className={`h-8 w-8 rounded-full flex items-center justify-center 
+                      ${s === step 
+                        ? 'bg-primary text-white' 
+                        : s < step 
+                          ? 'bg-primary/20 text-primary' 
+                          : 'bg-gray-200 text-gray-500'
+                      }`}
+                  >
+                    {s < step ? '✓' : s}
+                  </div>
+                  {s < 4 && (
+                    <div 
+                      className={`h-1 w-10 
+                        ${s < step ? 'bg-primary/40' : 'bg-gray-200'}`}
+                    ></div>
+                  )}
+                </div>
+              ))}
+            </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="p-6 space-y-6">
             {steps[step - 1].content}
 
             <div className="flex justify-between pt-4">
@@ -240,6 +363,7 @@ const Onboarding = () => {
                 <Button
                   onClick={() => setStep(s => s + 1)}
                   disabled={!canProceed()}
+                  className="bg-gradient-to-r from-primary to-primary/80"
                 >
                   Suivant
                   <ChevronRight className="w-4 h-4 ml-2" />
@@ -248,8 +372,9 @@ const Onboarding = () => {
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || !canProceed()}
+                  className="bg-gradient-to-r from-primary to-primary/80"
                 >
-                  Terminer
+                  {loading ? "Traitement..." : "Terminer"}
                 </Button>
               )}
             </div>

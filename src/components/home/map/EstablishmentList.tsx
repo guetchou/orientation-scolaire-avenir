@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Establishment, Neighborhood } from '@/types/establishments';
+import { Establishment } from '@/types/establishments';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Phone, Globe, Info } from 'lucide-react';
 

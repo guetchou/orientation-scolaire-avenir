@@ -85,8 +85,6 @@ export const EstablishmentsMapSection = () => {
                 onCityChange={() => {}}
                 uniqueCities={[]}
                 uniqueTypes={['university', 'vocational', 'highschool']}
-                searchQuery={searchQuery}
-                onSearchQueryChange={setSearchQuery}
               />
               
               <div className="block lg:hidden">
@@ -102,10 +100,7 @@ export const EstablishmentsMapSection = () => {
                 <EstablishmentList 
                   establishments={filteredEstablishments}
                   selectedEstablishment={selectedEstablishment}
-                  onSelectEstablishment={(est) => {
-                    setSelectedEstablishment(est);
-                    setIsMobileListOpen(false);
-                  }}
+                  setSelectedEstablishment={setSelectedEstablishment}
                 />
               </div>
             </div>
@@ -115,8 +110,6 @@ export const EstablishmentsMapSection = () => {
             <MapDisplay 
               establishments={filteredEstablishments} 
               selectedEstablishment={selectedEstablishment}
-              onSelectEstablishment={setSelectedEstablishment}
-              getMarkerIcon={getMarkerIcon}
             />
           </div>
         </div>

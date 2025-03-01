@@ -317,28 +317,30 @@ const TestResults = () => {
         </Tabs>
       </div>
 
-      <style jsx>{`
-        @media print {
-          nav, footer, button, .hidden-print {
-            display: none !important;
+      <style jsx="true">
+        {`
+          @media print {
+            nav, footer, button, .hidden-print {
+              display: none !important;
+            }
+            
+            body * {
+              visibility: hidden;
+            }
+            
+            #results-container, #results-container * {
+              visibility: visible;
+            }
+            
+            #results-container {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
           }
-          
-          body * {
-            visibility: hidden;
-          }
-          
-          #results-container, #results-container * {
-            visibility: visible;
-          }
-          
-          #results-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-        }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

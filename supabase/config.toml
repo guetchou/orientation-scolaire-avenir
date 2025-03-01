@@ -32,7 +32,9 @@ site_url = "http://localhost:3000"
 additional_redirect_urls = [
   "https://localhost:3000",
   "https://3c7ee4eb-63ae-4ed8-8d9d-9d1710f7c25f.lovableproject.com",
-  "https://azikiiztfejmywbhtuak.supabase.co/auth/v1/callback"
+  "https://azikiiztfejmywbhtuak.supabase.co/auth/v1/callback",
+  "http://localhost:5173",
+  "https://localhost:5173"
 ]
 jwt_expiry = 3600
 enable_signup = true

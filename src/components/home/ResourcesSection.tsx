@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BookOpen, VideoIcon, FileText, Download, Share2, BookMarked, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export const ResourcesSection = () => {
   const resources = [
@@ -11,41 +12,45 @@ export const ResourcesSection = () => {
       title: "Guide des Études Supérieures au Congo 2024",
       type: "guide",
       icon: <BookOpen className="w-6 h-6 text-primary" />,
-      description: "Tout ce qu'il faut savoir sur les filières, les écoles et les débouchés",
+      description: "Un panorama complet du système éducatif supérieur congolais, avec analyse des filières, universités, et perspectives professionnelles.",
       format: "PDF",
       size: "2.5 MB",
       downloadCount: "1.2k",
       tags: ["Orientation", "Études", "Guide"],
-      isNew: true
+      isNew: true,
+      link: "/resources"
     },
     {
       title: "Les Métiers d'Avenir au Congo",
       type: "video",
       icon: <VideoIcon className="w-6 h-6 text-red-500" />,
-      description: "Découvrez les secteurs porteurs et les compétences recherchées",
+      description: "Analyse des secteurs économiques en croissance et des compétences recherchées par les employeurs congolais.",
       duration: "15 min",
       views: "3.5k",
       tags: ["Carrière", "Tendances", "Emploi"],
-      isPopular: true
+      isPopular: true,
+      link: "/resources"
     },
     {
       title: "Kit de Préparation aux Entretiens",
       type: "toolkit",
       icon: <FileText className="w-6 h-6 text-green-500" />,
-      description: "Templates et conseils pour réussir vos entretiens",
+      description: "Outils pratiques, modèles de CV adaptés au contexte congolais et conseils pour réussir vos entretiens d'embauche.",
       format: "ZIP",
       size: "4.8 MB",
       downloadCount: "850",
-      tags: ["Emploi", "Entretien", "Conseils"]
+      tags: ["Emploi", "Entretien", "Conseils"],
+      link: "/resources"
     },
     {
-      title: "Parcours de Réussite",
+      title: "Parcours de Réussite Académique",
       type: "course",
       icon: <GraduationCap className="w-6 h-6 text-orange-500" />,
-      description: "Formation en ligne pour définir et atteindre vos objectifs",
+      description: "Formation en ligne gratuite pour développer des méthodes d'étude efficaces et réussir dans le système éducatif congolais.",
       duration: "4h",
       modules: "6 modules",
-      tags: ["Formation", "Développement", "Carrière"]
+      tags: ["Formation", "Développement", "Études"],
+      link: "/resources"
     }
   ];
 
@@ -57,7 +62,7 @@ export const ResourcesSection = () => {
             Ressources Gratuites
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Des outils et guides pratiques pour vous accompagner dans votre parcours d'orientation et votre développement professionnel
+            Des outils et guides pratiques pour vous accompagner dans votre parcours d'orientation et votre développement professionnel, adaptés au contexte congolais
           </p>
         </div>
 
@@ -131,8 +136,10 @@ export const ResourcesSection = () => {
                         {resource.views} vues
                       </span>
                     )}
-                    <Button size="sm" variant="ghost" className="ml-auto group-hover:translate-x-1 transition-transform">
-                      <ArrowRight className="w-4 h-4" />
+                    <Button size="sm" variant="ghost" className="ml-auto group-hover:translate-x-1 transition-transform" asChild>
+                      <Link to={resource.link}>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -142,9 +149,11 @@ export const ResourcesSection = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <Button variant="outline" size="lg" className="gap-2">
-            Explorer toutes les ressources
-            <ArrowRight className="w-4 h-4" />
+          <Button variant="outline" size="lg" className="gap-2" asChild>
+            <Link to="/resources">
+              Explorer toutes les ressources
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </Button>
         </div>
       </div>

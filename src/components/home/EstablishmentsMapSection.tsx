@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
-import MapDisplay from './map/MapDisplay';
-import EstablishmentFilters from './map/EstablishmentFilters';
-import EstablishmentList from './map/EstablishmentList';
-import { Establishment } from '@/types/establishments'; // Using correct type import
-import { getEstablishments } from './map/mapUtils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MapDisplay } from "./map/MapDisplay";
+import { EstablishmentFilters } from "./map/EstablishmentFilters";
+import { EstablishmentList } from "./map/EstablishmentList";
+import { Establishment } from "@/types/establishments";
+import { fetchEstablishments } from "./map/mapUtils";
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -17,10 +17,9 @@ export const EstablishmentsMapSection = () => {
   const [isMobileListOpen, setIsMobileListOpen] = useState(false);
 
   useEffect(() => {
-    // Convert the establishments from the home/types format to the app-wide types format
-    const fetchedEstablishments = getEstablishments().map(est => ({
+    const fetchedEstablishments = fetchEstablishments().map(est => ({
       ...est,
-      coordinates: [est.coordinates.lng, est.coordinates.lat] as [number, number], // Convert to expected format
+      coordinates: [est.coordinates.lng, est.coordinates.lat] as [number, number],
       neighborhood: est.neighborhood || "",
       website: est.website || "",
       phone: est.phone || "",
@@ -39,12 +38,10 @@ export const EstablishmentsMapSection = () => {
   useEffect(() => {
     let filtered = establishments;
 
-    // Filter by type
     if (selectedType !== 'all') {
       filtered = filtered.filter(est => est.type === selectedType);
     }
 
-    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(est => 
@@ -57,7 +54,6 @@ export const EstablishmentsMapSection = () => {
     setFilteredEstablishments(filtered);
   }, [selectedType, searchQuery, establishments]);
 
-  // Function to get marker icons based on establishment type
   const getMarkerIcon = (type: string) => {
     switch (type) {
       case 'university':

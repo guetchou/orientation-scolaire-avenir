@@ -79,3 +79,28 @@ export interface EmotionalTestResults {
   socialSkills: number;
   overallScore: number;
 }
+
+export interface RiasecResults {
+  realistic: number;
+  investigative: number;
+  artistic: number;
+  social: number;
+  enterprising: number;
+  conventional: number;
+}
+
+export interface MultipleIntelligenceResults {
+  linguistic: number;
+  logical: number;
+  spatial: number;
+  musical: number;
+  bodily: number;
+  interpersonal: number;
+  intrapersonal: number;
+  naturalist: number;
+}
+
+export interface TestResult {
+  type: 'learning-style' | 'emotional' | 'riasec' | 'multiple-intelligence';
+  data: LearningStyleResults | EmotionalTestResults | RiasecResults | MultipleIntelligenceResults;
+}

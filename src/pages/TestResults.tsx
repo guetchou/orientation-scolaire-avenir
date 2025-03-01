@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeTestResults } from "@/utils/analysisAlgorithms";
@@ -20,7 +21,8 @@ import {
   Download,
   Brain,
   User,
-  ChartBar 
+  ChartBar,
+  Printer 
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -97,6 +99,17 @@ const TestResults = () => {
     }
   };
 
+  const printResults = () => {
+    try {
+      toast.info("Préparation de l'impression...");
+      window.print();
+      toast.success("Impression lancée avec succès");
+    } catch (error) {
+      console.error("Erreur lors de l'impression:", error);
+      toast.error("Erreur lors de l'impression");
+    }
+  };
+
   const renderRiasecResults = (results: Record<string, number>) => {
     const data = Object.entries(results).map(([name, value]) => ({
       name,
@@ -122,10 +135,16 @@ const TestResults = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Résultats des Tests</h1>
-        <Button onClick={exportToPDF}>
-          <Download className="w-4 h-4 mr-2" />
-          Exporter en PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={printResults}>
+            <Printer className="w-4 h-4 mr-2" />
+            Imprimer
+          </Button>
+          <Button onClick={exportToPDF}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter en PDF
+          </Button>
+        </div>
       </div>
 
       <div id="results-container" className="space-y-6">
@@ -179,8 +198,8 @@ const TestResults = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {testResults.find(test => test.test_type === "RIASEC")?.results && 
-                  renderRiasecResults(testResults.find(test => test.test_type === "RIASEC")!.results)
+                {testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")?.results && 
+                  renderRiasecResults(testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")!.results)
                 }
               </CardContent>
             </Card>
@@ -193,81 +212,134 @@ const TestResults = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {testResults.map((test) => (
-                    <div
-                      key={test.id}
-                      className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
-                    >
-                      <div>
-                        <p className="font-medium">{test.test_type}</p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(test.created_at).toLocaleDateString("fr-FR", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </p>
+                  {testResults.length > 0 ? (
+                    testResults.map((test) => (
+                      <div
+                        key={test.id}
+                        className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                      >
+                        <div>
+                          <p className="font-medium">{test.test_type}</p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(test.created_at).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          Voir les détails
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm">
-                        Voir les détails
-                      </Button>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500">Aucun test complété pour le moment.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="details" className="space-y-4">
-            {testResults.map((test) => (
-              <Card key={test.id}>
-                <CardHeader>
-                  <CardTitle>{test.test_type}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {test.test_type === "RIASEC" && renderRiasecResults(test.results)}
-                  {test.test_type === "learning_style" && (
-                    <div className="grid grid-cols-2 gap-4">
-                      {Object.entries(test.results).map(([style, score]) => (
-                        <div key={style} className="p-4 border rounded-lg">
-                          <p className="font-medium capitalize">{style}</p>
-                          <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+            {testResults.length > 0 ? (
+              testResults.map((test) => (
+                <Card key={test.id}>
+                  <CardHeader>
+                    <CardTitle>{test.test_type}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {(test.test_type === "RIASEC" || test.test_type === "riasec") && renderRiasecResults(test.results)}
+                    {test.test_type === "learning_style" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(test.results).map(([style, score]) => (
+                          <div key={style} className="p-4 border rounded-lg">
+                            <p className="font-medium capitalize">{style}</p>
+                            <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {test.test_type === "emotional" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(test.results).map(([skill, score]) => (
+                          <div key={skill} className="p-4 border rounded-lg">
+                            <p className="font-medium capitalize">{skill}</p>
+                            <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-center text-gray-500">Aucun test complété pour le moment.</p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </TabsContent>
 
           <TabsContent value="recommendations" className="space-y-4">
-            {analysis?.recommendations && analysis.recommendations.map((rec: any) => (
-              <Card key={rec.field}>
-                <CardHeader>
-                  <CardTitle>{rec.field}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Score de compatibilité</p>
-                      <p className="text-2xl font-bold">{Math.round(rec.score * 10)}%</p>
+            {analysis?.recommendations && analysis.recommendations.length > 0 ? (
+              analysis.recommendations.map((rec: any) => (
+                <Card key={rec.field}>
+                  <CardHeader>
+                    <CardTitle>{rec.field}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Score de compatibilité</p>
+                        <p className="text-2xl font-bold">{Math.round(rec.score * 100)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Pourquoi ce domaine ?</p>
+                        <p className="text-gray-700">{rec.reason}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">Profils similaires</p>
+                        <p className="text-gray-700">{rec.matchingProfiles} personnes ont un profil similaire</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Pourquoi ce domaine ?</p>
-                      <p className="text-gray-700">{rec.reason}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Profils similaires</p>
-                      <p className="text-gray-700">{rec.matchingProfiles} personnes ont un profil similaire</p>
-                    </div>
-                  </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="p-6">
+                  <p className="text-center text-gray-500">Complétez au moins un test pour recevoir des recommandations personnalisées.</p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </TabsContent>
         </Tabs>
       </div>
+
+      <style jsx global>{`
+        @media print {
+          nav, footer, button, .hidden-print {
+            display: none !important;
+          }
+          
+          body * {
+            visibility: hidden;
+          }
+          
+          #results-container, #results-container * {
+            visibility: visible;
+          }
+          
+          #results-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 };

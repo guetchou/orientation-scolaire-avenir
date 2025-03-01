@@ -1,5 +1,4 @@
-
-import { LearningStyleResults, EmotionalTestResults } from "@/types/dashboard";
+import { LearningStyleResults, EmotionalTestResults, TestResult } from "@/types/dashboard";
 
 export function analyzeLearningStyle(answers: Record<string, number>): LearningStyleResults {
   // Calculer les scores pour chaque style d'apprentissage
@@ -58,4 +57,63 @@ export function analyzeEmotionalIntelligence(answers: Record<string, number>): E
     socialSkills,
     overallScore
   };
+}
+
+export function analyzeTestResults(testType: string, answers: Record<string, number>): TestResult {
+  switch(testType) {
+    case 'learning-style':
+      return {
+        type: 'learning-style',
+        data: analyzeLearningStyle(answers)
+      };
+    case 'emotional':
+      return {
+        type: 'emotional',
+        data: analyzeEmotionalIntelligence(answers)
+      };
+    case 'riasec':
+      // We'll return a placeholder for RIASEC tests
+      return {
+        type: 'riasec',
+        data: {
+          realistic: calculateCategoryScore(answers, 'r'),
+          investigative: calculateCategoryScore(answers, 'i'),
+          artistic: calculateCategoryScore(answers, 'a'),
+          social: calculateCategoryScore(answers, 's'),
+          enterprising: calculateCategoryScore(answers, 'e'),
+          conventional: calculateCategoryScore(answers, 'c')
+        }
+      };
+    case 'multiple-intelligence':
+      // Placeholder for multiple intelligence
+      return {
+        type: 'multiple-intelligence',
+        data: {
+          linguistic: calculateCategoryScore(answers, 'ling'),
+          logical: calculateCategoryScore(answers, 'log'),
+          spatial: calculateCategoryScore(answers, 'spat'),
+          musical: calculateCategoryScore(answers, 'mus'),
+          bodily: calculateCategoryScore(answers, 'bod'),
+          interpersonal: calculateCategoryScore(answers, 'inter'),
+          intrapersonal: calculateCategoryScore(answers, 'intra'),
+          naturalist: calculateCategoryScore(answers, 'nat')
+        }
+      };
+    default:
+      throw new Error(`Unknown test type: ${testType}`);
+  }
+}
+
+function calculateCategoryScore(answers: Record<string, number>, prefix: string): number {
+  let score = 0;
+  let count = 0;
+  
+  Object.entries(answers).forEach(([questionId, value]) => {
+    if (questionId.startsWith(prefix)) {
+      score += value;
+      count++;
+    }
+  });
+  
+  return count > 0 ? score / count : 0;
 }

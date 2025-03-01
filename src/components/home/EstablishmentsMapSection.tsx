@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapDisplay } from "./map/MapDisplay";
@@ -17,20 +18,7 @@ export const EstablishmentsMapSection = () => {
   const [isMobileListOpen, setIsMobileListOpen] = useState(false);
 
   useEffect(() => {
-    const fetchedEstablishments = fetchEstablishments().map(est => ({
-      ...est,
-      coordinates: [est.coordinates.lng, est.coordinates.lat] as [number, number],
-      neighborhood: est.neighborhood || "",
-      website: est.website || "",
-      phone: est.phone || "",
-      email: est.email || "",
-      programs: est.programs || [],
-      fees: est.fees || "",
-      admissionProcess: est.admissionProcess || "",
-      facilities: est.facilities || [],
-      images: est.images || []
-    }));
-    
+    const fetchedEstablishments = fetchEstablishments();
     setEstablishments(fetchedEstablishments);
     setFilteredEstablishments(fetchedEstablishments);
   }, []);
@@ -91,8 +79,14 @@ export const EstablishmentsMapSection = () => {
               <EstablishmentFilters 
                 selectedType={selectedType}
                 onTypeChange={setSelectedType}
-                searchQuery={searchQuery}
+                searchTerm={searchQuery}
                 onSearchChange={setSearchQuery}
+                selectedCity="all"
+                onCityChange={() => {}}
+                uniqueCities={[]}
+                uniqueTypes={['university', 'vocational', 'highschool']}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
               />
               
               <div className="block lg:hidden">
@@ -107,11 +101,11 @@ export const EstablishmentsMapSection = () => {
               <div className={`lg:block ${isMobileListOpen ? 'block' : 'hidden'}`}>
                 <EstablishmentList 
                   establishments={filteredEstablishments}
+                  selectedEstablishment={selectedEstablishment}
                   onSelectEstablishment={(est) => {
                     setSelectedEstablishment(est);
                     setIsMobileListOpen(false);
                   }}
-                  selectedEstablishment={selectedEstablishment}
                 />
               </div>
             </div>

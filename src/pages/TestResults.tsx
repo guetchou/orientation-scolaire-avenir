@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { analyzeTestResults } from "@/utils/analysisAlgorithms";
+import { analyzeUserTestResults } from "@/utils/analysisAlgorithms";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -59,7 +58,7 @@ const TestResults = () => {
 
       setTestResults(results as TestResult[]);
 
-      const analysisResults = await analyzeTestResults(user.id);
+      const analysisResults = await analyzeUserTestResults(user.id);
       setAnalysis(analysisResults);
     } catch (error) {
       console.error("Erreur lors de la récupération des résultats:", error);
@@ -318,7 +317,7 @@ const TestResults = () => {
         </Tabs>
       </div>
 
-      <style jsx global>{`
+      <style jsx>{`
         @media print {
           nav, footer, button, .hidden-print {
             display: none !important;

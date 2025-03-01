@@ -106,8 +106,8 @@ export function analyzeTestResults(testType: string, answers: Record<string, num
   }
 }
 
-// Add the missing analyzeTestResults function for the TestResults page
-export async function analyzeTestResults(userId: string) {
+// Renamed function to avoid duplicate declaration
+export async function analyzeUserTestResults(userId: string) {
   try {
     // Fetch all test results for the user
     const { data: testData, error } = await supabase

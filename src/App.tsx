@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
+import UpdatePassword from "./pages/UpdatePassword";
 import Tests from "./pages/Tests";
 import Conseillers from "./pages/Conseillers";
 import Resources from "./pages/Resources";
@@ -16,6 +18,7 @@ import LearningStyleTest from "./pages/LearningStyleTest";
 import TestResults from "./pages/TestResults";
 import AdminDashboard from "./pages/admin/Dashboard";
 import ConseillierDashboard from "./pages/conseiller/Dashboard";
+import CMS from "./pages/admin/CMS";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { ForumLayout } from "./components/forum/ForumLayout";
 import "./App.css";
@@ -35,6 +38,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/onboarding" element={<Onboarding />} />
         
         {/* Routes protégées avec DashboardLayout */}
@@ -42,6 +47,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/results" element={<TestResults />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/cms" element={<CMS />} />
           <Route path="/conseiller/dashboard" element={<ConseillierDashboard />} />
           <Route path="/forum" element={<ForumLayout />} />
         </Route>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { analyzeUserTestResults } from "@/utils/analysisAlgorithms";
@@ -317,7 +318,7 @@ const TestResults = () => {
         </Tabs>
       </div>
 
-      <style jsx="true">
+      <style>
         {`
           @media print {
             nav, footer, button, .hidden-print {

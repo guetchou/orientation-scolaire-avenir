@@ -161,6 +161,36 @@ export type Database = {
           },
         ]
       }
+      cms_contents: {
+        Row: {
+          content: string
+          created_at: string | null
+          description: string
+          id: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          description: string
+          id?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       forum_domains: {
         Row: {
           created_at: string | null
@@ -536,6 +566,7 @@ export type Database = {
     }
     Enums: {
       appointment_status: "pending" | "confirmed" | "cancelled"
+      content_type: "articles" | "resources" | "faq" | "pages"
     }
     CompositeTypes: {
       [_ in never]: never

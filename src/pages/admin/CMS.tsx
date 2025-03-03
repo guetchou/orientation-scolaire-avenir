@@ -52,7 +52,7 @@ const CMS = () => {
     title: "",
     description: "",
     content: "",
-    type: "article"
+    type: "articles"
   });
 
   useEffect(() => {
@@ -62,7 +62,6 @@ const CMS = () => {
   const fetchContents = async () => {
     setLoading(true);
     try {
-      // Note: Cette table n'existe pas encore, elle devra être créée dans Supabase
       const { data, error } = await supabase
         .from('cms_contents')
         .select('*')
@@ -71,7 +70,7 @@ const CMS = () => {
 
       if (error) throw error;
       
-      setContents(data || []);
+      setContents(data as ContentItem[] || []);
     } catch (error) {
       console.error("Erreur lors du chargement des contenus:", error);
       toast.error("Erreur lors du chargement des contenus");
@@ -139,7 +138,7 @@ const CMS = () => {
             title: formData.title,
             description: formData.description,
             content: formData.content,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           })
           .eq('id', currentItem.id);
 

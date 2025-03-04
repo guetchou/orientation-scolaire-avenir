@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -8,6 +7,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     // Vérifier l'état de l'authentification actuelle
@@ -20,6 +20,19 @@ export function useAuth() {
         }
 
         setUser(currentUser);
+        
+        // Vérifier si l'utilisateur est un super admin
+        if (currentUser) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('department, is_super_admin')
+            .eq('id', currentUser.id)
+            .single();
+            
+          if (profileData && profileData.is_super_admin) {
+            setIsSuperAdmin(true);
+          }
+        }
       } catch (err) {
         console.error('Erreur de vérification auth:', err);
         setError(err as Error);
@@ -33,6 +46,20 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id);
       setUser(session?.user ?? null);
+      
+      // Vérifier si l'utilisateur est un super admin lors des changements d'état d'authentification
+      if (session?.user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('department, is_super_admin')
+          .eq('id', session.user.id)
+          .single();
+          
+        setIsSuperAdmin(profileData?.is_super_admin || false);
+      } else {
+        setIsSuperAdmin(false);
+      }
+      
       setLoading(false);
     });
 
@@ -146,6 +173,46 @@ export function useAuth() {
     }
   };
 
+  const createSuperAdmin = async (email: string, password: string, firstName: string, lastName: string) => {
+    try {
+      setLoading(true);
+      
+      // Créer un nouvel utilisateur
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      if (data.user) {
+        // Mettre à jour le profil pour indiquer qu'il s'agit d'un super admin
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            department: 'admin',
+            is_super_admin: true,
+            first_name: firstName,
+            last_name: lastName,
+            status: 'active',
+          })
+          .eq('id', data.user.id);
+
+        if (profileError) throw profileError;
+        
+        toast.success('Compte super admin créé avec succès !');
+      }
+      
+      return data;
+    } catch (err) {
+      console.error("Erreur lors de la création du super admin:", err);
+      toast.error("Erreur lors de la création du super admin");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     user,
     loading,
@@ -155,5 +222,7 @@ export function useAuth() {
     signOut,
     resetPassword,
     updatePassword,
+    isSuperAdmin,
+    createSuperAdmin,
   };
 }

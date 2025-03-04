@@ -16,8 +16,12 @@ import { ChatBot } from "@/components/chat/ChatBot";
 export default function Index() {
   return (
     <div className="min-h-screen overflow-hidden">
-      <div className="background-gradient"></div>
-      <div className="background-pattern"></div>
+      {/* Arrière-plan flouté avec gradient et effet de flou */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background to-secondary/30 opacity-70"></div>
+        <div className="absolute inset-0 backdrop-blur-[120px]"></div>
+        <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px]"></div>
+      </div>
       
       <Navbar />
       

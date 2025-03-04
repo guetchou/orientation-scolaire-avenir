@@ -111,17 +111,30 @@ export default {
         glossy: "0 0 20px rgba(0, 0, 0, 0.1), 0 0 6px rgba(0, 0, 0, 0.1)",
         highlight: "inset 0 1px 0 0 rgba(255, 255, 255, 0.1)",
         glow: "0 0 20px rgba(37, 99, 235, 0.5)",
+        "inner-glow": "inset 0 0 20px 5px rgba(255, 255, 255, 0.2)",
+        "glass": "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+        "3d": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-out forwards",
         "slide-up": "slideUp 0.5s ease-out forwards",
         "pulse-glow": "pulseGlow 2s infinite",
         "float": "float 3s ease-in-out infinite",
+        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "spin-slow": "spin 8s linear infinite",
       },
       keyframes: {
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
+        },
+        fadeIn: {
+          from: { opacity: "0" },
+          to: { opacity: "1" }
+        },
+        slideUp: {
+          from: { transform: "translateY(20px)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" }
         },
       },
       backdropBlur: {
@@ -131,6 +144,10 @@ export default {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      transitionProperty: {
+        'height': 'height',
+        'spacing': 'margin, padding',
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],

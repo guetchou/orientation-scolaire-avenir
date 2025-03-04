@@ -161,6 +161,18 @@ body {
   animation: pulseGlow 2s infinite;
 }
 
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
 /* Effet de verre dépoli amélioré */
 .glass-effect {
   background: rgba(255, 255, 255, 0.05);
@@ -185,4 +197,66 @@ body {
   background-clip: text;
   color: transparent;
   display: inline-block;
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shine effect for cards */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  opacity: 0;
+  transform: rotate(30deg);
+  background: rgba(255, 255, 255, 0.13);
+  background: linear-gradient(
+    to right, 
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.13) 77%,
+    rgba(255, 255, 255, 0.5) 92%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+}
+
+.card-shine:hover::after {
+  opacity: 1;
+  left: 130%;
+  transition-property: left, opacity;
+  transition-duration: 0.7s, 0.15s;
+  transition-timing-function: ease;
+}
+
+/* Professional depth effects */
+.depth-shadow {
+  box-shadow: 
+    0 1px 1px rgba(0,0,0,0.02), 
+    0 2px 2px rgba(0,0,0,0.02), 
+    0 4px 4px rgba(0,0,0,0.02), 
+    0 8px 8px rgba(0,0,0,0.02),
+    0 16px 16px rgba(0,0,0,0.02);
+}
+
+.depth-shadow-lg {
+  box-shadow: 
+    0 1px 2px rgba(0,0,0,0.03), 
+    0 2px 4px rgba(0,0,0,0.03), 
+    0 4px 8px rgba(0,0,0,0.03), 
+    0 8px 16px rgba(0,0,0,0.03),
+    0 16px 32px rgba(0,0,0,0.03);
 }

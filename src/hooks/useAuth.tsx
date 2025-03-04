@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -23,7 +24,7 @@ export function useAuth() {
         
         // Vérifier si l'utilisateur est un super admin
         if (currentUser) {
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('department, is_super_admin')
             .eq('id', currentUser.id)
@@ -49,7 +50,7 @@ export function useAuth() {
       
       // Vérifier si l'utilisateur est un super admin lors des changements d'état d'authentification
       if (session?.user) {
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('department, is_super_admin')
           .eq('id', session.user.id)

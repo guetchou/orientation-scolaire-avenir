@@ -444,6 +444,7 @@ export type Database = {
           first_name: string | null
           id: string
           interests: string | null
+          is_super_admin: boolean | null
           last_name: string | null
           phone: string | null
           position: string | null
@@ -461,6 +462,7 @@ export type Database = {
           first_name?: string | null
           id: string
           interests?: string | null
+          is_super_admin?: boolean | null
           last_name?: string | null
           phone?: string | null
           position?: string | null
@@ -478,6 +480,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           interests?: string | null
+          is_super_admin?: boolean | null
           last_name?: string | null
           phone?: string | null
           position?: string | null

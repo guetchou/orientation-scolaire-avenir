@@ -7,40 +7,42 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
+      const result = await signIn(email, password);
       
-      toast.success("Connexion réussie");
-      navigate("/dashboard");
+      if (result && result.user) {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       console.error("Erreur de connexion:", error);
-      toast.error(error.message || "Erreur lors de la connexion");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 px-4">
+      <div className="absolute inset-0 -z-10 backdrop-blur-[80px]"></div>
+      <div className="absolute inset-0 -z-10 bg-grid-white/10 bg-[size:20px_20px]"></div>
+      
+      <Card className="w-full max-w-md border-0 shadow-lg bg-white/90 backdrop-blur">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Connexion</CardTitle>
+          <CardTitle className="text-2xl text-center font-heading">Connexion</CardTitle>
           <CardDescription className="text-center">
             Entrez vos identifiants pour vous connecter
           </CardDescription>
@@ -50,32 +52,51 @@ export default function Login() {
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m.dupont@exemple.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m.dupont@exemple.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                  />
+                </div>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Mot de passe</Label>
                   <Link 
                     to="/reset-password" 
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-primary hover:underline"
                   >
                     Mot de passe oublié?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-2.5"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button className="w-full" type="submit" disabled={loading}>
                 {loading ? "Connexion en cours..." : "Se connecter"}
@@ -83,14 +104,19 @@ export default function Login() {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col">
-          <div className="text-center mt-2">
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-center">
             <span className="text-sm text-gray-500">
               Pas encore de compte?{" "}
-              <Link to="/register" className="text-blue-600 hover:underline">
+              <Link to="/register" className="text-primary hover:underline">
                 S'inscrire
               </Link>
             </span>
+          </div>
+          <div className="text-center">
+            <Link to="/admin/super-admin" className="text-sm text-primary hover:underline">
+              Créer un compte super administrateur
+            </Link>
           </div>
         </CardFooter>
       </Card>

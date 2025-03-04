@@ -17,10 +17,13 @@ import MultipleIntelligenceTest from "./pages/MultipleIntelligenceTest";
 import LearningStyleTest from "./pages/LearningStyleTest";
 import TestResults from "./pages/TestResults";
 import AdminDashboard from "./pages/admin/Dashboard";
+import SuperAdmin from "./pages/admin/SuperAdmin";
 import ConseillierDashboard from "./pages/conseiller/Dashboard";
 import CMS from "./pages/admin/CMS";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { ForumLayout } from "./components/forum/ForumLayout";
+import Blog from "./pages/Blog";
+import Recrutement from "./pages/Recrutement"; 
 import "./App.css";
 
 console.info("Application starting...");
@@ -41,6 +44,9 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/recrutement" element={<Recrutement />} />
+        <Route path="/admin/super-admin" element={<SuperAdmin />} />
         
         {/* Routes protégées avec DashboardLayout */}
         <Route element={<DashboardLayout />}>

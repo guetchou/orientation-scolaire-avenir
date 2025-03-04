@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -87,6 +86,28 @@ export const Navbar = () => {
             >
               Contact
             </Link>
+            <Link 
+              to="/blog" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/blog") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
+              Blog
+            </Link>
+            <Link 
+              to="/recrutement" 
+              className={`transition-colors hover:text-primary relative
+                ${isActive("/recrutement") 
+                  ? "text-primary font-medium after:content-[''] after:absolute after:w-full after:h-0.5 after:bg-primary after:bottom-[-8px] after:left-0" 
+                  : isScrolled ? "text-gray-700" : "text-gray-800"
+                }
+              `}
+            >
+              Recrutement
+            </Link>
           </div>
 
           {/* Boutons Auth Desktop */}
@@ -144,6 +165,20 @@ export const Navbar = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Contact
+            </Link>
+            <Link 
+              to="/blog" 
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/blog") ? "text-primary font-medium" : ""}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Blog
+            </Link>
+            <Link 
+              to="/recrutement" 
+              className={`block py-2 hover:text-primary transition-colors ${isActive("/recrutement") ? "text-primary font-medium" : ""}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Recrutement
             </Link>
             <div className="space-y-2 pt-4 border-t">
               <Link to="/login" className="block">

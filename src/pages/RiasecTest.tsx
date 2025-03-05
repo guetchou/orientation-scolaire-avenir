@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ const RiasecTest = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
+  const [testCompleted, setTestCompleted] = useState(false);
+  const [testId, setTestId] = useState<string | null>(null);
 
   const handleAnswer = (score: number) => {
     const newAnswers = [...answers, score];
@@ -35,14 +38,16 @@ const RiasecTest = () => {
 
       const results = calculateRiasecResults(finalAnswers);
       
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('test_results')
         .insert([{
           user_id: user.id,
           test_type: 'RIASEC',
           results,
           answers: finalAnswers
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) {
         console.error("Error saving test results:", error);
@@ -50,7 +55,8 @@ const RiasecTest = () => {
       }
 
       toast.success("Test complété avec succès !");
-      navigate("/dashboard/results");
+      setTestCompleted(true);
+      setTestId(data.id);
     } catch (error: any) {
       console.error("Erreur lors de la sauvegarde des résultats:", error);
       toast.error("Erreur lors de la sauvegarde des résultats");
@@ -71,51 +77,80 @@ const RiasecTest = () => {
     return results;
   };
 
+  const showPartialResults = () => {
+    navigate(`/dashboard/results`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <Card className="max-w-2xl mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="font-heading text-2xl font-bold text-center mb-2">
-              Test d'orientation RIASEC
-            </h1>
-            <p className="text-gray-600 text-center">
-              Question {currentQuestion + 1} sur {questions.length}
-            </p>
-            <div className="w-full bg-gray-200 h-2 rounded-full mt-4">
-              <div
-                className="bg-primary h-2 rounded-full transition-all"
-                style={{
-                  width: `${((currentQuestion + 1) / questions.length) * 100}%`,
-                }}
-              />
+        {!testCompleted ? (
+          <Card className="max-w-2xl mx-auto p-6">
+            <div className="mb-8">
+              <h1 className="font-heading text-2xl font-bold text-center mb-2">
+                Test d'orientation RIASEC
+              </h1>
+              <p className="text-gray-600 text-center">
+                Question {currentQuestion + 1} sur {questions.length}
+              </p>
+              <div className="w-full bg-gray-200 h-2 rounded-full mt-4">
+                <div
+                  className="bg-primary h-2 rounded-full transition-all"
+                  style={{
+                    width: `${((currentQuestion + 1) / questions.length) * 100}%`,
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-6">
-            <p className="text-lg text-center mb-8">
-              {questions[currentQuestion].question}
-            </p>
+            <div className="space-y-6">
+              <p className="text-lg text-center mb-8">
+                {questions[currentQuestion].question}
+              </p>
 
-            <div className="grid gap-3">
-              {[1, 2, 3, 4, 5].map((score) => (
-                <Button
-                  key={score}
-                  onClick={() => handleAnswer(score)}
-                  variant={score === 5 ? "default" : "outline"}
-                  className="w-full py-6"
-                  disabled={loading}
-                >
-                  {score === 1 && "Pas du tout"}
-                  {score === 2 && "Un peu"}
-                  {score === 3 && "Moyennement"}
-                  {score === 4 && "Beaucoup"}
-                  {score === 5 && "Passionnément"}
-                </Button>
-              ))}
+              <div className="grid gap-3">
+                {[1, 2, 3, 4, 5].map((score) => (
+                  <Button
+                    key={score}
+                    onClick={() => handleAnswer(score)}
+                    variant={score === 5 ? "default" : "outline"}
+                    className="w-full py-6"
+                    disabled={loading}
+                  >
+                    {score === 1 && "Pas du tout"}
+                    {score === 2 && "Un peu"}
+                    {score === 3 && "Moyennement"}
+                    {score === 4 && "Beaucoup"}
+                    {score === 5 && "Passionnément"}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card className="max-w-2xl mx-auto p-6 text-center">
+            <div className="mb-8">
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h1 className="font-heading text-2xl font-bold mb-4">
+                Test RIASEC complété avec succès !
+              </h1>
+              <p className="text-gray-600 mb-8">
+                Votre profil d'orientation a été analysé. Vous pouvez maintenant consulter vos résultats.
+              </p>
+              <Button 
+                size="lg" 
+                onClick={showPartialResults}
+                className="mx-auto"
+              >
+                Voir mes résultats
+              </Button>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

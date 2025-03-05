@@ -22,23 +22,28 @@ import {
   Brain,
   User,
   ChartBar,
-  Printer 
+  Printer,
+  Lock
 } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { TestResultPaywall } from "@/components/payment/TestResultPaywall";
 
 interface TestResult {
   id: string;
   test_type: string;
   results: Record<string, number>;
   created_at: string;
+  is_paid?: boolean;
 }
 
 const TestResults = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTestId, setSelectedTestId] = useState<string | null>(null);
+  const [hasFullAccess, setHasFullAccess] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchResults();
@@ -49,6 +54,7 @@ const TestResults = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Utilisateur non connecté");
 
+      // Get test results
       const { data: results, error } = await supabase
         .from('test_results')
         .select('*')
@@ -57,7 +63,40 @@ const TestResults = () => {
 
       if (error) throw error;
 
-      setTestResults(results as TestResult[]);
+      // Get payment records to check which results are paid for
+      const { data: payments, error: paymentsError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('payment_type', 'test_result')
+        .in('status', ['COMPLETED', 'SUCCESSFUL']);
+
+      if (paymentsError) throw paymentsError;
+
+      // Mark tests that have been paid for
+      const paidTests: Record<string, boolean> = {};
+      
+      if (payments && payments.length > 0) {
+        payments.forEach((payment) => {
+          if (payment.metadata && payment.metadata.test_id) {
+            paidTests[payment.metadata.test_id] = true;
+          }
+        });
+      }
+
+      // Update test results with payment status
+      const updatedResults = (results as TestResult[] || []).map(test => ({
+        ...test,
+        is_paid: paidTests[test.id] || false
+      }));
+
+      setTestResults(updatedResults);
+      setHasFullAccess(paidTests);
+
+      // Set the first test as selected if there are any
+      if (updatedResults.length > 0) {
+        setSelectedTestId(updatedResults[0].id);
+      }
 
       const analysisResults = await analyzeUserTestResults(user.id);
       setAnalysis(analysisResults);
@@ -110,14 +149,32 @@ const TestResults = () => {
     }
   };
 
-  const renderRiasecResults = (results: Record<string, number>) => {
-    const data = Object.entries(results).map(([name, value]) => ({
+  const renderRiasecResults = (results: Record<string, number>, isPaid: boolean) => {
+    // For non-paid tests, show only partial results
+    let dataToShow = results;
+    
+    if (!isPaid) {
+      // Create a limited version of the results (first 3 entries)
+      dataToShow = Object.fromEntries(
+        Object.entries(results).slice(0, 3)
+      );
+    }
+
+    const data = Object.entries(dataToShow).map(([name, value]) => ({
       name,
       value: Math.round(value * 100) / 100,
     }));
 
     return (
       <div className="h-[300px] w-full">
+        {!isPaid && (
+          <div className="absolute right-4 top-0 z-10">
+            <div className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-xs flex items-center">
+              <Lock className="h-3 w-3 mr-1" />
+              Résultats partiels
+            </div>
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -128,6 +185,57 @@ const TestResults = () => {
           </BarChart>
         </ResponsiveContainer>
       </div>
+    );
+  };
+
+  const renderTestDetails = (test: TestResult) => {
+    const isPaid = hasFullAccess[test.id] || test.is_paid;
+    
+    if (!isPaid) {
+      return (
+        <TestResultPaywall 
+          testType={test.test_type} 
+          testId={test.id} 
+          partialResults={test.results} 
+        />
+      );
+    }
+    
+    // Render full results for paid tests
+    return (
+      <>
+        {(test.test_type === "RIASEC" || test.test_type === "riasec") && renderRiasecResults(test.results, true)}
+        {test.test_type === "learning_style" && (
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(test.results).map(([style, score]) => (
+              <div key={style} className="p-4 border rounded-lg">
+                <p className="font-medium capitalize">{style}</p>
+                <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {test.test_type === "emotional" && (
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(test.results).map(([skill, score]) => (
+              <div key={skill} className="p-4 border rounded-lg">
+                <p className="font-medium capitalize">{skill}</p>
+                <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {test.test_type === "multiple_intelligence" && (
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(test.results).map(([type, score]) => (
+              <div key={type} className="p-4 border rounded-lg">
+                <p className="font-medium capitalize">{type.replace('_', ' ')}</p>
+                <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
     );
   };
 
@@ -199,7 +307,10 @@ const TestResults = () => {
               </CardHeader>
               <CardContent>
                 {testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")?.results && 
-                  renderRiasecResults(testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")!.results)
+                  renderRiasecResults(
+                    testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")!.results,
+                    !!hasFullAccess[testResults.find(test => test.test_type === "RIASEC" || test.test_type === "riasec")!.id]
+                  )
                 }
               </CardContent>
             </Card>
@@ -219,7 +330,20 @@ const TestResults = () => {
                         className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
                       >
                         <div>
-                          <p className="font-medium">{test.test_type}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{test.test_type}</p>
+                            {!hasFullAccess[test.id] && !test.is_paid && (
+                              <div className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs flex items-center">
+                                <Lock className="h-3 w-3 mr-1" />
+                                Partiel
+                              </div>
+                            )}
+                            {(hasFullAccess[test.id] || test.is_paid) && (
+                              <div className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">
+                                Complet
+                              </div>
+                            )}
+                          </div>
                           <p className="text-sm text-gray-500">
                             {new Date(test.created_at).toLocaleDateString("fr-FR", {
                               day: "numeric",
@@ -228,7 +352,11 @@ const TestResults = () => {
                             })}
                           </p>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setSelectedTestId(test.id)}
+                        >
                           Voir les détails
                         </Button>
                       </div>
@@ -243,36 +371,35 @@ const TestResults = () => {
 
           <TabsContent value="details" className="space-y-4">
             {testResults.length > 0 ? (
-              testResults.map((test) => (
-                <Card key={test.id}>
+              selectedTestId ? (
+                <Card>
                   <CardHeader>
-                    <CardTitle>{test.test_type}</CardTitle>
+                    <div className="flex justify-between items-start">
+                      <CardTitle>
+                        {testResults.find(t => t.id === selectedTestId)?.test_type}
+                      </CardTitle>
+                      <div className="text-sm text-gray-500">
+                        {new Date(testResults.find(t => t.id === selectedTestId)?.created_at || "").toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
-                    {(test.test_type === "RIASEC" || test.test_type === "riasec") && renderRiasecResults(test.results)}
-                    {test.test_type === "learning_style" && (
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(test.results).map(([style, score]) => (
-                          <div key={style} className="p-4 border rounded-lg">
-                            <p className="font-medium capitalize">{style}</p>
-                            <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {test.test_type === "emotional" && (
-                      <div className="grid grid-cols-2 gap-4">
-                        {Object.entries(test.results).map(([skill, score]) => (
-                          <div key={skill} className="p-4 border rounded-lg">
-                            <p className="font-medium capitalize">{skill}</p>
-                            <p className="text-2xl font-bold">{Math.round(score as number * 100)}%</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {testResults.find(t => t.id === selectedTestId) && 
+                      renderTestDetails(testResults.find(t => t.id === selectedTestId)!)
+                    }
                   </CardContent>
                 </Card>
-              ))
+              ) : (
+                <Card>
+                  <CardContent className="p-6">
+                    <p className="text-center text-gray-500">Sélectionnez un test dans l'historique pour voir les détails</p>
+                  </CardContent>
+                </Card>
+              )
             ) : (
               <Card>
                 <CardContent className="p-6">

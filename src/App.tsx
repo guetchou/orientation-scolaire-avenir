@@ -24,6 +24,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import { ForumLayout } from "./components/forum/ForumLayout";
 import Blog from "./pages/Blog";
 import Recrutement from "./pages/Recrutement"; 
+import Payment from "./pages/Payment";
 import "./App.css";
 
 console.info("Application starting...");
@@ -47,6 +48,7 @@ function App() {
         <Route path="/blog" element={<Blog />} />
         <Route path="/recrutement" element={<Recrutement />} />
         <Route path="/admin/super-admin" element={<SuperAdmin />} />
+        <Route path="/payment" element={<Payment />} />
         
         {/* Routes protégées avec DashboardLayout */}
         <Route element={<DashboardLayout />}>

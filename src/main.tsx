@@ -1,15 +1,28 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import './index.css';
 
-console.log("Application starting..."); // Log pour le debugging
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from 'sonner';
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Root element not found");
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch(error => {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+  });
+}
 
-createRoot(root).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <App />
-  </StrictMode>
-);
+    <Toaster />
+    <SonnerToaster position="top-right" richColors />
+  </React.StrictMode>,
+)

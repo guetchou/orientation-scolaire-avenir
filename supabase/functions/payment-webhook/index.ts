@@ -90,6 +90,11 @@ serve(async (req) => {
             console.error('Error creating subscription:', subError);
           }
         } 
+        else if (paymentData.payment_type === 'test_result') {
+          // No additional action needed - the payment status itself will be used
+          // to determine if the user has access to full test results
+          console.log(`Test result payment completed for user: ${paymentData.user_id}, test: ${paymentData.metadata?.test_id}`);
+        }
         // Other payment types can be handled here
       }
     }

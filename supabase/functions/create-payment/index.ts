@@ -37,7 +37,9 @@ serve(async (req) => {
     
     // Get price for the requested plan
     const planPrices = {
-      'premium_report': 3500 // FC (Francs Congolais)
+      'premium_report': 3500, // FC (Francs Congolais)
+      'premium_subscription': 15000, // Monthly subscription
+      'enterprise_plan': 50000 // Enterprise plan
     };
     
     const amount = planPrices[plan_id as keyof typeof planPrices];

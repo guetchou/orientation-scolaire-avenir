@@ -1,19 +1,37 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Orientation Pro Congo</title>
-    <meta name="description" content="Plateforme d'orientation scolaire et professionnelle au Congo Brazzaville" />
-    <meta name="author" content="Orientation Pro Congo" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="Plateforme d'orientation professionnelle et académique. Découvrez votre voie grâce à nos tests, nos conseillers et nos ressources." />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Orient - Votre guide d'orientation</title>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://orientapp.com/" />
+    <meta property="og:title" content="Orient - Votre guide d'orientation" />
+    <meta property="og:description" content="Plateforme d'orientation professionnelle et académique. Découvrez votre voie grâce à nos tests, nos conseillers et nos ressources." />
     <meta property="og:image" content="/og-image.png" />
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://orientapp.com/" />
+    <meta property="twitter:title" content="Orient - Votre guide d'orientation" />
+    <meta property="twitter:description" content="Plateforme d'orientation professionnelle et académique. Découvrez votre voie grâce à nos tests, nos conseillers et nos ressources." />
+    <meta property="twitter:image" content="/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
+    <!-- Fallback for older browsers -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>JavaScript est désactivé</h1>
+        <p>Cette application nécessite JavaScript pour fonctionner. Veuillez l'activer dans les paramètres de votre navigateur.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

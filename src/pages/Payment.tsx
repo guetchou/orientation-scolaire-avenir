@@ -5,13 +5,13 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard, Phone, RefreshCw, CheckCircle, AlertTriangle } from "lucide-react";
+import { CreditCard, Phone, RefreshCw, CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Payment = () => {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<'pending' | 'success' | 'failed'>('pending');
+  const [status, setStatus] = useState<'pending' | 'processing' | 'success' | 'failed'>('pending');
   const [paymentMethod, setPaymentMethod] = useState<'airtel' | 'mtn' | 'card' | null>(null);
   const [paymentData, setPaymentData] = useState<any>(null);
   
@@ -51,61 +51,80 @@ const Payment = () => {
     }
   };
   
+  const processCardPayment = async () => {
+    setStatus('processing');
+    setLoading(true);
+    
+    try {
+      // Call card payment processor function
+      const { data, error } = await supabase.functions.invoke('card-payment', {
+        body: {
+          transaction_id: transactionId,
+          card_details: { /* Normally this would contain card details */ }
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        setStatus('success');
+        toast.success("Paiement par carte réussi !");
+      } else {
+        setStatus('failed');
+        toast.error(data.message || "Échec du paiement par carte");
+      }
+    } catch (error) {
+      console.error('Card payment error:', error);
+      setStatus('failed');
+      toast.error("Erreur lors du traitement du paiement par carte");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const processMobilePayment = async (provider: 'airtel' | 'mtn') => {
+    setStatus('processing');
+    setLoading(true);
+    
+    try {
+      // Call mobile money function based on provider
+      const functionName = provider === 'airtel' ? 'airtel-money' : 'mtn-momo';
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: {
+          transaction_id: transactionId,
+          phone_number: '0123456789' // In a real app, this would be collected from user
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        setStatus('success');
+        toast.success(`Paiement ${provider} réussi !`);
+      } else {
+        setStatus('failed');
+        toast.error(data?.message || `Échec du paiement ${provider}`);
+      }
+    } catch (error) {
+      console.error(`${provider} payment error:`, error);
+      setStatus('failed');
+      toast.error(`Erreur lors du traitement du paiement ${provider}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handlePayment = async () => {
     if (!paymentMethod) {
       toast.error("Veuillez sélectionner une méthode de paiement");
       return;
     }
     
-    setLoading(true);
-    
-    try {
-      // In a real-world scenario, this would connect to a real payment gateway
-      // For this demo, we'll simulate a payment process
-      
-      let endpointName = '';
-      
-      switch (paymentMethod) {
-        case 'airtel':
-          endpointName = 'airtel-money';
-          break;
-        case 'mtn':
-          endpointName = 'mtn-momo';
-          break;
-        case 'card':
-          endpointName = 'card-payment';
-          break;
-      }
-      
-      // For demo purposes, we'll use a timeout to simulate processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate successful payment 80% of the time
-      const isSuccessful = Math.random() > 0.2;
-      
-      if (isSuccessful) {
-        // Update payment status in the database
-        const { error } = await supabase
-          .from('payments')
-          .update({ 
-            status: 'COMPLETED',
-            updated_at: new Date().toISOString()
-          })
-          .eq('transaction_id', transactionId);
-          
-        if (error) throw error;
-        
-        setStatus('success');
-        toast.success("Paiement réussi !");
-      } else {
-        throw new Error("Échec de la simulation de paiement");
-      }
-    } catch (error) {
-      console.error('Payment error:', error);
-      setStatus('failed');
-      toast.error("Échec du paiement. Veuillez réessayer.");
-    } finally {
-      setLoading(false);
+    if (paymentMethod === 'card') {
+      processCardPayment();
+    } else if (paymentMethod === 'airtel' || paymentMethod === 'mtn') {
+      processMobilePayment(paymentMethod);
     }
   };
   
@@ -199,6 +218,25 @@ const Payment = () => {
             </Card>
           )}
           
+          {status === 'processing' && (
+            <Card>
+              <CardHeader className="text-center pb-0">
+                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                  <RefreshCw className="h-8 w-8 text-blue-500 animate-spin" />
+                </div>
+                <CardTitle>Traitement du paiement...</CardTitle>
+                <CardDescription>
+                  Veuillez patienter pendant que nous traitons votre paiement
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Ne fermez pas cette fenêtre et n'actualisez pas la page
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          
           {status === 'success' && (
             <Card>
               <CardHeader className="text-center pb-0">
@@ -221,6 +259,19 @@ const Payment = () => {
                       <span className="text-gray-500">Montant</span>
                       <span className="font-medium">{amount || '3500'} FC</span>
                     </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Méthode</span>
+                      <span className="font-medium">
+                        {paymentMethod === 'airtel' ? 'Airtel Money' : 
+                         paymentMethod === 'mtn' ? 'MTN Mobile Money' : 
+                         paymentMethod === 'card' ? 'Carte bancaire' : 'Paiement en ligne'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-center bg-green-50 p-3 rounded-lg">
+                    <ShieldCheck className="h-5 w-5 text-green-500 mr-2" />
+                    <p className="text-sm text-green-800">Paiement sécurisé et confirmé</p>
                   </div>
                   
                   <p className="text-center text-sm text-gray-600">
